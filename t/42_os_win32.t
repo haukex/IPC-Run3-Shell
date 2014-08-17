@@ -18,7 +18,7 @@ use FindBin ();
 use lib $FindBin::Bin;
 use IPC_Run3_Shell_Testlib;
 
-# This is just a really simple sanity test to see if commands other than "perl" work.
+# ### PLEASE SEE NOTE IN 40_os_nix.t ###
 
 use Test::More ($^O eq 'MSWin32') ? (tests=>2)
 	: (skip_all=>"these tests run on MSWin32, this is $^O");

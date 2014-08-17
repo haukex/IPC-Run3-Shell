@@ -18,7 +18,7 @@ use FindBin ();
 use lib $FindBin::Bin;
 use IPC_Run3_Shell_Testlib;
 
-# This is just a really simple sanity test to see if commands other than "perl" work.
+# ### PLEASE SEE NOTE IN 40_os_nix.t ###
 
 use Test::More ($^O eq 'darwin') ? (tests=>3)
 	: (skip_all=>"these tests run on darwin, this is $^O");

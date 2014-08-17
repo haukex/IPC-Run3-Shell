@@ -18,7 +18,13 @@ use FindBin ();
 use lib $FindBin::Bin;
 use IPC_Run3_Shell_Testlib;
 
-# This is just a really simple sanity test to see if commands other than "perl" work.
+# ### NOTE ###
+# These tests are meant to be really simple sanity tests to check if some
+# OS-specific commands other than "perl" work. If any of these tests fail,
+# but all other tests pass, then it's probably just due to that specific
+# external command not being available or working differently on your OS.
+# It is usually fine to force an install of the module anway. Please report
+# any such failures as bugs.
 
 # Possible To-Do for Later: This test should run on lots of other *NIX systems.
 # I just haven't gotten around to making a longer list.
