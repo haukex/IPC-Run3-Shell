@@ -28,11 +28,11 @@ use warnings FATAL=>'IPC::Run3::Shell';
 
 my $s = IPC::Run3::Shell->new;
 
-my $d = $s->defaults('read','com.apple.Safari');
+my $d = $s->defaults('read','NSGlobalDomain');
 is $?, 0, 'defaults ran ok';
-like $d, qr/\bHomePage\b/, 'found HomePage key';
+like $d, qr/\bAppleLocale\b/, 'found AppleLocale key';
 
-my @ps = grep {/Dock/} $s->ps(-ax);
+my @ps = grep { /\b(?:Dock|KernelEventAgent|SystemStarter)\b/ } $s->ps(-ax);
 is $?, 0, 'ps ran ok';
-note "Dock: @ps";
+note "selected system processes: @ps";
 
