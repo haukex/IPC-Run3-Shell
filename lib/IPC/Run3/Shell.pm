@@ -149,6 +149,7 @@ sub make_cmd {  ## no critic (ProhibitExcessComplexity)
 		croak __PACKAGE__.": empty command" unless @fcmd;
 		warnings::warnif(__PACKAGE__.": command/argument list contains undefined values and/or references/objects")
 			if grep { !defined || ref } @fcmd;
+		@fcmd = map { defined() ? $_ : '' } @fcmd;
 		
 		# ### STDOUT Redirection
 		# wantarray: the context of the function call
