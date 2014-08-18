@@ -61,7 +61,7 @@ like exception {
 # failure tests
 like exception { $s->perl('-e','exit 1'); 1 },
 	qr/exit (status|value) 1\b/, "fail 1";
-note "in the following test, errors referring to \"this_command_shouldnt_exist\" can be safely ignored as long as the test passes";
+diag "in the following test, errors referring to \"this_command_shouldnt_exist\" can be safely ignored as long as the test passes";
 like exception { $s->this_command_shouldnt_exist; 1 },
 	qr/\QCommand "this_command_shouldnt_exist" failed/, "fail 2";
 like exception { $s->perl('-e','exit 123'); 1 },
