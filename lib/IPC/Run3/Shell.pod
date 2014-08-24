@@ -345,20 +345,15 @@ This option has no effect if you're using the option L</stdout>.
 
 =head2 C<stderr>
 
- use IPC::Run3::Shell qw/ cat find /;
+ use IPC::Run3::Shell {chomp=>1}, qw/ cat find /;
  cat { stdin=>\"Hello, World!\n" };
- { # in a new block because we've got a few "local" vars
-     my (@files, $err);
-     local $/ = "\0";  # could use the option "irs" here too
-     # there will probably be some "permission denied" errors in /etc, which is
-     # why we're allowing for an exit value of 1 and are capturing stderr
-     my $rv = find { allow_exit=>[0,1] }, '/etc', '-name', 'passwd',
-         '-print0', { stdout=>\@files, stderr=>\$err };
-     print "find exited with $rv\n";
-     local $" = ", ";
-     print "Found files: @files\n";
-     print "## Warnings ##\n$err##\n" if $err=~/\S/;
- }
+ # there will probably be some "permission denied" errors in /etc,
+ # so we're allowing for an exit value of 1 and are capturing stderr
+ my $rv = find { allow_exit=>[0,1] }, '/etc', '-name', 'passwd',
+     '-print0', { stdout=>\my @files, stderr=>\my $err, irs=>"\0" };
+ print "find exited with $rv\n";
+ print "Found files: ".join(', ',@files)."\n";
+ print "## Warnings ##\n$err##\n" if $err=~/\S/;
 
 =for test cut
 
