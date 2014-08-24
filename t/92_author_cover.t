@@ -21,6 +21,7 @@ use IPC_Run3_Shell_Testlib;
 # Note: Run coverage tests via
 # $ perl Makefile.PL
 # $ make
+# $ make test
 # $ IPC_RUN3_SHELL_AUTHOR_TESTS=1 /opt/perl5.20/bin/cover -test -coverage default,-pod
 # $ make distclean
 # $ rm -rv cover_db
@@ -34,7 +35,7 @@ BEGIN {
 		if $DEVEL_COVER && !$AUTHOR_TESTS;
 }
 
-use Test::More $AUTHOR_TESTS && $DEVEL_COVER ? (tests=>3)
+use Test::More $AUTHOR_TESTS && $DEVEL_COVER ? (tests=>4)
 	: (skip_all=>'only used in author coverage testing');
 use Test::Fatal 'exception';
 
@@ -51,6 +52,8 @@ output_is {
 	IPC::Run3::Shell::debug("testing 456");
 } '', "# IPC::Run3::Shell Debug: testing 456\n", "debug output";
 
+is IPC::Run3::Shell::_cmd2str("foo",undef,"bar"),  ## no critic (ProtectPrivateSubs)
+	"foo  bar", "_cmd2str coverage";
 
 IPC::Run3::Shell::Autoload::DESTROY();
 
