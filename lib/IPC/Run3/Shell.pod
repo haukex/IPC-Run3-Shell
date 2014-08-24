@@ -69,7 +69,8 @@ More examples in the documentation!
 
 This module's goal is to provide a relatively transparent interface to system commands
 from regular-looking Perl functions.
-It is inspired by and is similar to the module L<Shell|Shell>,
+It is built on the module L<IPC::Run3|IPC::Run3>
+and is heavily inspired by the module L<Shell|Shell>,
 but with several important differences and added features:
 
 =over
@@ -105,12 +106,12 @@ This document describes version 0.51 of IPC::Run3::Shell.
 
 Calling system commands can be dangerous.
 This module does not provide any security checks.
-All of the usual warnings apply - I<Please> read L<perlsec>!
+All of the usual warnings apply, see L<perlsec>!
 
 =head1 General
 
 This module provides Perl functions with the following basic pattern:
-The name of the function (or method call, if you're using the L<OO interface|/OO Interface>)
+The name of the function (or method, if you're using the L<OO interface|/OO Interface>)
 becomes the name of the system command that is executed when you call the function, and
 any arguments given to the Perl function become the arguments of the system command.
 Options may be given to the Perl function as a hashref, see L</Options> for details.
@@ -146,15 +147,12 @@ which enables all warnings:
  use warnings;
  use strict;    # or "use v5.12;" or a newer version
 
-In addition, you can do one of the following recommended things:
+In addition, you can turn the warnings into fatal errors like this
+(see L<perllexwarn>):
 
- use IPC::Run3::Shell;                    # must import the module first
- use warnings FATAL=>"IPC::Run3::Shell";  # make this module's warnings fatal
-
- use warnings FATAL=>"all";               # make all warnings fatal
-
-But note that when using C<< FATAL=>"all" >>, your program may not be forwards-compatible
-when a new version of Perl is released that adds new warnings (see L<perllexwarn>).
+ # use the module, then make the module's warnings fatal
+ use IPC::Run3::Shell;
+ use warnings FATAL=>"IPC::Run3::Shell";
 
 =for test cut
 
@@ -218,6 +216,9 @@ by any default options, then the command name and any arguments.
  is $x, "Test!\n";
 
 =for test cut
+
+The OO interface has the advantages that no functions need to be imported to
+your namespace at all, and that each object has its own independent set of options.
 
 When you make an object with C<new>, almost all of the methods you call on
 that object are translated into system commands following the usual pattern
@@ -532,13 +533,11 @@ context they are called in (void, scalar and list) and some of the options
 to provide a DWIM (Do What I Mean) interface, the difference in behavior might
 be subtle and lead to a bit of confusion.
 
-Some functions are package methods, while others are not.
-For example, L<C<new>|/OO Interface> and L<C<import>|/Importing at Run-Time> must be called
-as C<< IPC::Run3::Shell->new() >> resp. C<< IPC::Run3::Shell->import() >>,
-while if you don't do C<use IPC::Run3::Shell qw/:run :make_cmd/>,
-L</run> and L</make_cmd> must be called as
-C<IPC::Run3::Shell::run()> resp. C<IPC::Run3::Shell::make_cmd()>
-- not doing so will give you unexpected results!
+Some functions are package methods, while others are not, i.e. don't
+mix up C<::> and C<< -> >>. Examples:
+C<< IPC::Run3::Shell->new() >>, C<< IPC::Run3::Shell->import() >>,
+C<IPC::Run3::Shell::run()>, C<IPC::Run3::Shell::make_cmd()>.
+(For the latter two, it's probably easier to use C<use IPC::Run3::Shell qw/:run :make_cmd/;>.)
 
 If you plan on subclassing this module, note that the OO interface doesn't follow
 traditional Perl OO design patterns
