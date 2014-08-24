@@ -165,10 +165,10 @@ a failure of L<IPC::Run3|IPC::Run3>.
 =head1 Functional Interface
 
  use IPC::Run3::Shell {show_cmd=>1},  # default options for the following
-     qw/ echo cat /,            # these Perl functions will call system commands
-     [ lsl => 'ls', '-l' ];     # alias function "lsl" to system command "ls -l"
+     qw/ echo cat /,       # these Perl functions will call system commands
+     [ lsl => 'ls', '-l' ];     # alias function "lsl" to command "ls -l"
  echo "Hello,", "World!";       # similar to system() (due to void context)
- my @passwds = cat {chomp=>1}, "/etc/passwd";  # get lines of the output as list
+ my @passwds = cat {chomp=>1}, "/etc/passwd";  # get output lines as list
  my $filelist = lsl;            # get the full output of the command
 
 =for test
@@ -202,17 +202,17 @@ by any default options, then the command name and any arguments.
 
  use IPC::Run3::Shell [ 'e', {show_cmd=>1}, 'echo', '-n' ],
      [ d => '/bin/date' ];
- e d '+%Z';       # calls "/bin/date +%Z" and passes its output to "echo -n"
+ e d '+%Z';      # calls "/bin/date +%Z" and passes its output to "echo -n"
 
 =for test cut
 
 =head1 OO Interface
 
- use IPC::Run3::Shell;                       # nothing exported by default
+ use IPC::Run3::Shell;                        # nothing exported by default
  # the following default options apply to all commands called on the object
  my $sh = IPC::Run3::Shell->new( show_cmd => 1 );
  $sh->echo("Hello, World!");
- my $x = $sh->echo({show_cmd=>0}, "Test!");  # overriding a default option
+ my $x = $sh->echo({show_cmd=>0}, "Test!");   # overriding a default option
 
 =for test
  is $x, "Test!\n";
@@ -238,7 +238,7 @@ they will be of type C<IPC::Run3::Shell::Autoload>, so they have a clean namespa
 =head2 C<run>
 
  use IPC::Run3::Shell qw/ :run /;               # NOTE the colon
- my $root = run "grep", "root", "/etc/passwd";  # run the system command "grep"
+ my $root = run "grep", "root", "/etc/passwd";  # run system command "grep"
  # Perl's built-in "grep" function remains unaffected
 
 =for test
@@ -260,7 +260,7 @@ only by those that you give to C<IPC::Run3::Shell::run()> directly).
 =head2 C<make_cmd>
 
  use IPC::Run3::Shell qw/ :make_cmd /;  # NOTE the colon
- my $pl = make_cmd 'perl', '-le';       # $pl->(ARGS) will run "perl -le ARGS"
+ my $pl = make_cmd 'perl', '-le';    # $pl->(ARGS) will run "perl -le ARGS"
  $pl->('print "Hello, World!"');
 
 =for test cut
@@ -557,8 +557,9 @@ L<Scalar::Util|Scalar::Util>'s C<set_prototype>:
  use IPC::Run3::Shell [ xuc => 'perl', '-e', 'print uc "@ARGV"', '--' ];
  use Scalar::Util qw/set_prototype/;
  BEGIN { set_prototype \&xuc, '$'; }     # make xuc() a unary operator
- my $foo = join ",", xuc "a", "b", "c";  # normally: join(",",xuc("a","b","c"))
- print $foo;  # but now it's join(",",xuc("a"),"b","c"), so this prints "A,b,c"
+ # normally xuc() would take all the arguments, now it only takes one
+ my $foo = join ",", xuc "a", "b", "c";
+ print $foo;                             # prints "A,b,c"
 
 =for test
  is $foo, "A,b,c";
@@ -573,7 +574,7 @@ For a description of the arguments of C<import> please see L</Arguments to use>.
 
  use IPC::Run3::Shell;
  IPC::Run3::Shell->import('echo');
- echo("foo");                      # NOTE parentheses are required here
+ echo("foo");                       # NOTE parentheses are required here
 
 =for test cut
 

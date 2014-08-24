@@ -109,6 +109,8 @@ sub _gather {
 	$type ||= 'code';
 	my $filename = $self->input_file || 'unknown_file';
 	return unless $text=~/\S/;
+	warn "wide verbatim block at $filename line $line\n"
+		if $text=~/^.{76,}$/m;
 	# remove indent based on first line
 	my ($indent) = $text =~ /^(\s*)/;
 	$text =~ s/^$indent//mg;
