@@ -1,5 +1,8 @@
 Revision history for Perl extension IPC::Run3::Shell.
 
+0.52	not yet released
+	- ...
+
 0.51	Sun, Aug 24 2014
 	- fix a test failure on Darwin
 	- undefs in the argument list are now changed to empty strings
