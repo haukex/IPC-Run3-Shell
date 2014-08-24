@@ -5,53 +5,61 @@ IPC::Run3::Shell - Perl extension for easy execution of system commands
 
 =head1 Synopsis
 
- #!/usr/bin/env perl
- use warnings;
  use strict;
- use IPC::Run3::Shell qw(echo cat ps cp);
- my $foo = echo("howdy", "<funny>", "world");
- print $foo;
- my $passwd = cat("/etc/passwd");
- print $passwd;
- print ps -ww;
- cp("/etc/passwd", "/tmp/passwd.orig");
+ use warnings;             # any problems with system commands are warnings
+ use IPC::Run3::Shell;                        # nothing exported by default
+ use warnings FATAL=>"IPC::Run3::Shell";      # fatal warnings (optional)
+ 
+ # ### Basic Usage (Functional Interface)
+ use IPC::Run3::Shell qw/ echo cat /;    # these functions call system cmds
+ echo "Hello, World!";                   # void context: display output
+ my $groups = cat "/etc/group";          # scalar context: get all output
+ my @passwd = cat "/etc/passwd";         # list context: get output lines
+ my $foo = echo ' "" \\ ; $HOME 1>&2 ';  # shell metachars are unaffected
+ 
+ # ### OO Interface - methods become system commands
+ my $sh = IPC::Run3::Shell->new( show_cmd=>1 );    # independent options
+ $sh->cp(-v, '/etc/passwd', '/tmp/passwd.copy');   # Perl note: -v eq "-v"
+ 
+ # ### Options
+   # set default options in "use", or per command as first/last arguments
+ use IPC::Run3::Shell { chomp=>1 }, qw/ ls /;      # chomp the return value
+ my @files = ls -lA, '/etc', {chomp=>0};           # override an option
+ my $motd = cat "/etc/motd", {allow_exit=>[0,1]};  # allowed exit codes
+ my @words = echo {irs=>"-"}, -n, "A-B-C-D";       # input record separator
+ echo "Foo", "Bar", {fail_on_stderr=>1};           # fail on any STDERR
+ my $bla = echo {show_cmd=>1}, "blah", "blah";     # show cmd (debugging)
+   # IPC::Run3 options binmode_* and append_* are also supported
+ 
+ # ### I/O Redirection with Options stdin, stdout, and stderr
+ use IPC::Run3::Shell qw/ :run /;        # and a demo of the run() function
+ my ($i,$o,$e) = ("Hello,");
+ run '/usr/bin/perl', '-pe', 'warn "World!\n"',    # a tricky example
+     {stdin=>\$i, stdout=>\$o, stderr=>\$e};
+ print "$o $e";                                    # prints "Hello, World!"
+   # Note use of "stdout" means return value will be the exit code
+ # ## A *simplified* reference for stdin/stdout/stderr options:
+   # undef = inherit filehandle        # \undef = /dev/null
+   # $filename = use that filename     # \*FILEHANDLE = use that filehandle
+   # \$scalarref = use that string     # \@arrayref = lines* to/from array
+   # \&coderef = called for each line*     ( * no newlines added to stdin )
+ 
+ # ### Aliasing
+ use IPC::Run3::Shell [ psw => {chomp=>1}, '/bin/ps', -ww ];
+ my @ps = psw;        # function psw() is now an alias for "/bin/ps -ww"
 
 =for test
- is $foo, "howdy <funny> world\n";
- ok -f "/tmp/passwd.orig";
-
-=for test cut
-
-The above is adapted from Larry Wall's 1994 L<email about Shell|Shell/AUTHOR>.
-Here's a more involved example:
-
- use IPC::Run3::Shell {chomp=>1},  # default options for the following commands
-     qw/ echo cat /,               # these system commands become Perl functions
-     [ psw => 'ps', '-ww' ];       # "psw" is now an alias for "ps -ww"
- 
- echo "Hello,", "World!";          # command is run similar to Perl's system()
- my $ps = psw {show_cmd=>1};       # set an option, and get all command output
- my @passwd = cat "/etc/passwd";   # get the lines of the output as a list
- 
- # OO interface
- my $sh = IPC::Run3::Shell->new(fail_on_stderr=>1);  # independent options
- my $foo = $sh->echo("Foo!");      # methods become system commands
- $sh->cp('-v', '/etc/passwd', '/tmp/passwd.copy');
- 
- # advanced usage
- my $pl = IPC::Run3::Shell::make_cmd(
-     'perl', '-pe' );            # $pl->() will now run an external perl process
- my ($i,$o,$e) = ("Hello,");     # set up vars for stdin, stdout & stderr
- $pl->({show_cmd=>1}, 'warn "World!\n"',  # a somewhat contrived example
-     {stdin=>\$i, stdout=>\$o, stderr=>\$e});  # redirect I/O however you desire
- print "$o $e";                  # prints "Hello, World!"
-
-=for test
- note '$ps: ', explain $ps;
- note '@passwd: ', explain \@passwd;
- is $foo, "Foo!\n";
+ note '$groups = ', explain $groups;
+ note '@passwd = ', explain \@passwd;
+ is $foo, ' "" \\ ; $HOME 1>&2 '."\n";
  ok -f '/tmp/passwd.copy';
+ note '@files = ', explain \@files;
+ note '$motd = ', explain $motd;
+ is_deeply \@words, [qw/A- B- C- D/];
+ is $bla, "blah blah\n";
+ is $o, "Hello,"; is $e, "World!\n";
  is "$o $e", "Hello, World!\n";
+ note '@ps = ', explain \@ps;
 
 =for test cut
 

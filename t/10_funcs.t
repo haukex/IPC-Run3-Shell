@@ -18,7 +18,7 @@ use FindBin ();
 use lib $FindBin::Bin;
 use IPC_Run3_Shell_Testlib;
 
-use Test::More tests => 11;
+use Test::More tests => 12;
 
 use IPC::Run3::Shell qw/ perl :run :make_cmd /, [ foo => 'perl', '-e', 'print "foo @ARGV"' ];
 use warnings FATAL=>'IPC::Run3::Shell';
@@ -44,4 +44,6 @@ is foo2('print "bar"'), "bar", 'IPC::Run3::Shell->import()';
 is perl('-e','print "@ARGV"','a >b'), 'a >b', 'shell metachar 1';
 is perl('-e','$"="##"; print "@ARGV"','""', '$HOME', '1>&2', 'a b', ' ', "c\n", '!@#$%^&*()+={}[]\|;:?/<>,.`\'"-_'),
 	"\"\"##\$HOME##1>&2##a b## ##c\n##!\@#\$%^&*()+={}[]\\|;:?/<>,.`'\"-_", 'shell metachar 2';
+is perl('-e','$"="##"; print "@ARGV"',' "" \\ ; $HOME 1>&2 '),
+	' "" \\ ; $HOME 1>&2 ', 'shell metachar 3'; # from the Synopsis
 
