@@ -35,7 +35,7 @@ use Test_Pod_Verbatim_Parser;
 
 diag "Some output is normal here (show_cmd)";
 for my $podfile (@PODFILES) {
-	pod_file_ok($podfile) for @PODFILES;
+	pod_file_ok($podfile);
 	Test_Pod_Verbatim_Parser->new->parse_from_file($podfile, IO::String->new(my $out));
 	subtest "tests generated from POD in '$podfile'" => sub {
 		eval $out or fail "eval error: $@";  ## no critic (ProhibitStringyEval)
