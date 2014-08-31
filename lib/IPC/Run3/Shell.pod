@@ -283,6 +283,19 @@ or by calling C<IPC::Run3::Shell::make_cmd()> directly.
 Note that C<make_cmd> and the functions it generates are only affected by the options
 passed directly to them, and never by default options given elsewhere (such as to C<use>).
 
+=head2 C<import_into>
+
+Lets you export functions from this module into any package of your choosing.
+The first argument is the package name,
+the rest are the L<usual arguments to import|/Arguments to use>.
+
+ use IPC::Run3::Shell;
+ IPC::Run3::Shell->import_into('Foo::Bar', 'echo');
+ {
+     package Foo::Bar;
+     echo("Hello, World");
+ }
+
 =head1 Options
 
 Options can be set in several different places:
@@ -536,6 +549,7 @@ be subtle and lead to a bit of confusion.
 Some functions are package methods, while others are not, i.e. don't
 mix up C<::> and C<< -> >>. Examples:
 C<< IPC::Run3::Shell->new() >>, C<< IPC::Run3::Shell->import() >>,
+C<< IPC::Run3::Shell->import_into() >>,
 C<IPC::Run3::Shell::run()>, C<IPC::Run3::Shell::make_cmd()>.
 (For the latter two, it's probably easier to use C<use IPC::Run3::Shell qw/:run :make_cmd/;>.)
 
@@ -587,6 +601,8 @@ created by L</make_cmd> into your namespace manually. For example:
  foo "bar";           # calls "echo foo bar"
 
 =for test cut
+
+Also, note the L</import_into> function for more powerful exporting.
 
 =head2 Calling the Shell
 

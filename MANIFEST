@@ -10,6 +10,7 @@ t/11_oo.t
 t/12_capture.t
 t/13_warn_fail.t
 t/14_abspath.t
+t/15_import_into.t
 t/20_opt_allow_exit.t
 t/21_opt_chomp.t
 t/22_opt_irs.t

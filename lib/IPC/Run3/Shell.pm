@@ -72,6 +72,11 @@ my %EXPORTABLE = map {$_=>1} qw/ make_cmd /; # "run" gets special handling
 sub import {
 	my ($class, @export) = @_;
 	my ($callpack) = caller;
+	return import_into($class, $callpack, @export);
+}
+
+sub import_into {
+	my ($class, $callpack, @export) = @_;
 	my %opt;
 	%opt = ( %opt, %{shift @export} ) while ref $export[0] eq 'HASH';
 	croak "$class use/import list contains undefined values and/or references/objects"
