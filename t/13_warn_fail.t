@@ -61,9 +61,8 @@ like exception {
 # failure tests
 like exception { $s->perl('-e','exit 1'); 1 },
 	qr/exit (status|value) 1\b/, "fail 1";
-diag "in the following test, errors referring to \"this_command_shouldnt_exist\" can be safely ignored as long as the test passes";
-like exception { $s->this_command_shouldnt_exist; 1 },
-	qr/\QCommand "this_command_shouldnt_exist" failed/, "fail 2";
+like exception { $s->ignore_this_error_it_is_intentional; 1 },
+	qr/\QCommand "ignore_this_error_it_is_intentional" failed/, "fail 2";
 like exception { $s->perl('-e','exit 123'); 1 },
 	qr/exit (status|value) 123\b/, "fail 3";
 like exception { is $s->perl({_BAD_OPT=>1},'-e','print "foo"'), "foo", "unknown opt 1A" },
@@ -82,14 +81,14 @@ is warns { # warning tests
 	ok exception { my $x = 0 + undef; }, 'double-check warning fatality 1';
 	my @w1 = warns {
 			is $s->perl('-e','print "foo"; exit 1'), "foo", "warning test 1A"; is $?, 1<<8, "warning test 1B";
-			ok !$s->this_command_shouldnt_exist(), "warning test 2A"; is $?, $^O eq 'MSWin32' ? 0xFF00 : -1, "warning test 2B";
+			ok !$s->ignore_this_error_it_is_intentional(), "warning test 2A"; is $?, $^O eq 'MSWin32' ? 0xFF00 : -1, "warning test 2B";
 			is $s->perl({stdout=>\my $x},'-e','print "foo"; exit 123'), 123, "warning test 3A"; is $?, 123<<8, "warning test 3B";
 			is $x, "foo", "warning test 3C";
 			is $s->perl('-e','kill 9, $$'), '', "warning test 4A"; is $?, $^O eq 'MSWin32' ? 9<<8 : 9, "warning test 4B";
 		};
 	is @w1, 4, "warning test count";
 	like $w1[0], qr/exit (status|value) 1\b/, "warning test 1C";
-	like $w1[1], qr/\QCommand "this_command_shouldnt_exist" failed/, "warning test 2C";
+	like $w1[1], qr/\QCommand "ignore_this_error_it_is_intentional" failed/, "warning test 2C";
 	like $w1[2], qr/exit (status|value) 123\b/, "warning test 3D";
 	like $w1[3], ( $^O eq 'MSWin32' ? qr/exit status 9\b/ : qr/signal 9, without coredump|\Qsignal "KILL" (9)\E/ ), "warning test 4C";
 	# make sure fail_on_stderr is still fatal
@@ -116,7 +115,7 @@ is warns { # warning tests
 	is warns {
 			# note these are just copied from the "warnings tests" above
 			is $s->perl('-e','print "foo"; exit 1'), "foo", "no warn 1A"; is $?, 1<<8, "no warn 1B";
-			ok !$s->this_command_shouldnt_exist(), "no warn 2A"; is $?, $^O eq 'MSWin32' ? 0xFF00 : -1, "no warn 2B";
+			ok !$s->ignore_this_error_it_is_intentional(), "no warn 2A"; is $?, $^O eq 'MSWin32' ? 0xFF00 : -1, "no warn 2B";
 			is $s->perl({stdout=>\my $x},'-e','print "foo"; exit 123'), 123, "no warn 3A"; is $?, 123<<8, "no warn 3B";
 			is $x, "foo", "no warn 3C";
 			is $s->perl('-e','kill 9, $$'), '', "no warn 4A"; is $?, $^O eq 'MSWin32' ? 9<<8 : 9, "no warn 4B";
