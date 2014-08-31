@@ -2,6 +2,7 @@ Revision history for Perl extension IPC::Run3::Shell.
 
 0.52	not yet released
 	- added ->import_into("package", ...)
+	- fixed tests in Perl v5.6
 
 0.51	Sun, Aug 24 2014
 	- fix a test failure on Darwin
