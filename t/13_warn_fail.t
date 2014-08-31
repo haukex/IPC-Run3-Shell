@@ -73,8 +73,12 @@ like exception { is $s->perl({_BAD_OPT=>1},'-e','print "foo"'), "foo", "unknown 
 like exception { $s->perl('-e','kill 9, $$'); 1 },
 	( $^O eq 'MSWin32' ? qr/exit status 9\b/ : qr/signal 9, without coredump|\Qsignal "KILL" (9)\E/ ), "fail 4";
 
-{ # warning tests
-	use warnings FATAL=>'all', NONFATAL=>'IPC::Run3::Shell';
+is warns { # warning tests
+	# make warnings nonfatal in a way compatible with Perl v5.6, which didn't yet have "NONFATAL"
+	no warnings FATAL=>'all'; use warnings;  ## no critic (ProhibitNoWarnings)
+	# the following is a workaround for Perl v5.6 not yet having the NONFATAL keyword;
+	# note we check below that this block does not produce any extra warnings even in v5.6
+	use warnings ($]<=5.008) ? (FATAL=>'uninitialized') : (FATAL=>'all', NONFATAL=>'IPC::Run3::Shell');
 	ok exception { my $x = 0 + undef; }, 'double-check warning fatality 1';
 	my @w1 = warns {
 			is $s->perl('-e','print "foo"; exit 1'), "foo", "warning test 1A"; is $?, 1<<8, "warning test 1B";
@@ -103,7 +107,7 @@ like exception { $s->perl('-e','kill 9, $$'); 1 },
 	like $w3[1], qr/undefined values?/, "undef/ref warn 1D";
 	like $w3[2], qr/contains?.+references/, "undef/ref warn 1E";
 	like $w3[3], qr/\Qunknown option "_BAD_OPT"/, "unknown opt 2B";
-}
+}, 0, "no unexpected warns";
 
 { # disable warnings
 	use warnings FATAL=>'all';

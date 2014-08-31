@@ -42,7 +42,8 @@ $s->perl({allow_exit=>'ANY'},'-e','exit 23'); is $?, 23<<8, 'allow_exit any 3';
 $s->perl({allow_exit=>'ANY'},'-e','exit 123'); is $?, 123<<8, 'allow_exit any 4';
 
 my @w1 = warns {
-		use warnings NONFATAL=>'IPC::Run3::Shell';
+		# make warnings nonfatal in a way compatible with Perl v5.6, which didn't yet have "NONFATAL"
+		no warnings FATAL=>'all'; use warnings;  ## no critic (ProhibitNoWarnings)
 		$s->perl({allow_exit=>[]},'-e','exit');
 		is $?, 0, 'allow_exit err 1';
 	};
