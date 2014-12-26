@@ -5,6 +5,32 @@ IPC::Run3::Shell - Perl extension for easy execution of system commands
 
 =head1 Synopsis
 
+ #!/usr/bin/env perl
+ use warnings;
+ use strict;
+ 
+ use IPC::Run3::Shell qw(echo cat ps cp);
+ 
+ my $foo = echo("howdy", "<funny>", "world");
+ print $foo;                              # prints "howdy <funny> world\n"
+ 
+ my @passwd = cat("/etc/passwd", {chomp=>1});
+ print "$_\n" for @passwd;                # prints lines of /etc/passwd
+ 
+ print ps -ww;                            # prints output of "ps -ww"
+ 
+ cp("/etc/passwd", "/tmp/passwd.orig");
+
+=for test
+ is $foo, "howdy <funny> world\n";
+ ok -f "/tmp/passwd.orig";
+
+=for test cut
+
+The above is adapted from Larry Wall's 1994 L<email about Shell|Shell/AUTHOR>.
+
+=head1 Reference / Cheat Sheet
+
  use strict;
  use warnings;             # any problems with system commands are warnings
  use IPC::Run3::Shell;                        # nothing exported by default
@@ -69,8 +95,6 @@ IPC::Run3::Shell - Perl extension for easy execution of system commands
  note '@ps = ', explain \@ps;
 
 =for test cut
-
-More examples in the documentation!
 
 =head1 Description
 
