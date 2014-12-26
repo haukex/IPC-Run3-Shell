@@ -603,7 +603,9 @@ See the documentation of L<Perl's C<system()>|perlfunc/system> for an example of
 
 [2] If you're I<expecting> a nonzero return code from a system command,
 see the option L</allow_exit>.
-Currently, a command being terminated due to a signal always generates an (optionally fatal) warning.
+Currently, a command being terminated due to a signal will generate a
+(optional/optionally fatal) L<warning|/Warnings>,
+there is no equivalent of L</allow_exit> for signals.
 
 [3] C<STDERR> can be handled via the options L</stderr> or L</fail_on_stderr>.
 
