@@ -5,13 +5,13 @@ Revision history for Perl extension IPC::Run3::Shell.
 	- added ->import_into("package", ...)
 	- fixed tests in Perl v5.6
 
-0.51	Sun, Aug 24 2014
+0.51	Sun, Aug 24 2014	commit e1eae144ce2a3b0493f9f5b4706861b2afdc68e4
 	- fix a test failure on Darwin
 	- undefs in the argument list are now changed to empty strings
 	  (was causing trouble on Windows with Win32::ShellQuote)
 	- added support for Perls < v5.10
 	- updated documentation, mainly Synopsis
 
-0.50	Sun, Aug 17 2014
+0.50	Sun, Aug 17 2014	commit c3b776d8707b61b1d6095fe05952d9031eb6ae55
 	- first public release
 
