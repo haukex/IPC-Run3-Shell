@@ -113,7 +113,7 @@ functions are only exported at the request of the user
 
 =item *
 
-system commands and their arguments are never sent through the shell
+system commands and their arguments are never* sent through the shell
 (so you don't have to worry about escaping shell metacharacters)
 
 =item *
@@ -126,6 +126,10 @@ failures of the system commands are (optional) warnings, which can be made fatal
 advanced capturing of C<STDIN>, C<STDOUT> and C<STDERR>
 
 =back
+
+I<< * this should hold true for all *NIX systems, and on Windows,
+L<IPC::Run3|IPC::Run3> versions 0.047 and up use L<Win32::ShellQuote|Win32::ShellQuote>
+so that you shouldn't have to worry about shell metacharacters there either. >>
 
 B<Read on for more information and examples!>
 
