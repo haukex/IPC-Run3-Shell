@@ -15,6 +15,7 @@ t/20_opt_allow_exit.t
 t/21_opt_chomp.t
 t/22_opt_irs.t
 t/23_opt_show_cmd.t
+t/24_opt_both.t
 t/29_opt_inherit.t
 t/30_run3.t
 t/40_os_nix.t

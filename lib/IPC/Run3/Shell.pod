@@ -15,6 +15,7 @@ IPC::Run3::Shell - Perl extension for easy execution of system commands
  echo "Hello, World!";                   # void context: display output
  my $groups = cat "/etc/group";          # scalar context: get all output
  my @passwd = cat "/etc/passwd";         # list context: get output lines
+                   # Note: option "both" changes return values, see below
  my $foo = echo ' "" \\ ; $HOME 1>&2 ';  # shell metachars are unaffected
  
  # ### OO Interface - methods become system commands
@@ -27,6 +28,8 @@ IPC::Run3::Shell - Perl extension for easy execution of system commands
  my @files = ls -lA, '/etc', {chomp=>0};           # override an option
  my $motd = cat "/etc/motd", {allow_exit=>[0,1]};  # allowed exit codes
  my @words = echo {irs=>"-"}, -n, "A-B-C-D";       # input record separator
+ my ($out,$err,$exitcode) = echo "Foo", {both=>1}; # return both STDOUT/ERR
+ my $out_and_err = echo "FooBar", {both=>1};       # STDOUT+STDERR merged
  echo "Foo", "Bar", {fail_on_stderr=>1};           # fail on any STDERR
  my $bla = echo {show_cmd=>1}, "blah", "blah";     # show cmd (debugging)
    # IPC::Run3 options binmode_* and append_* are also supported
@@ -36,8 +39,8 @@ IPC::Run3::Shell - Perl extension for easy execution of system commands
  my ($i,$o,$e) = ("Hello,");
  run '/usr/bin/perl', '-pe', 'warn "World!\n"',    # a tricky example
      {stdin=>\$i, stdout=>\$o, stderr=>\$e};
+   # Note use of "stdout" option means return value will be the exit code
  print "$o $e";                                    # prints "Hello, World!"
-   # Note use of "stdout" means return value will be the exit code
  # ## A *simplified* reference for stdin/stdout/stderr options:
    # undef = inherit filehandle        # \undef = /dev/null
    # $filename = use that filename     # \*FILEHANDLE = use that filehandle
@@ -56,6 +59,10 @@ IPC::Run3::Shell - Perl extension for easy execution of system commands
  note '@files = ', explain \@files;
  note '$motd = ', explain $motd;
  is_deeply \@words, [qw/A- B- C- D/];
+ is $out, "Foo\n";
+ is $err, "";
+ is $exitcode, 0;
+ is $out_and_err, "FooBar\n";
  is $bla, "blah blah\n";
  is $o, "Hello,"; is $e, "World!\n";
  is "$o $e", "Hello, World!\n";
@@ -117,7 +124,7 @@ any arguments given to the Perl function become the arguments of the system comm
 Options may be given to the Perl function as a hashref, see L</Options> for details.
 The return value of the Perl function depends on a few things,
 this is described in L</Return Values>, but normally it'll be either
-the output (C<STDOUT>) of the system command or its exit code.
+the output of the system command or its exit code.
 If something goes wrong, an optional and optionally fatal warning is raised, see L</Warnings>.
 Additional features are described in the rest of this documentation, such as
 L</Additional Functions>.
@@ -157,8 +164,10 @@ In addition, you can turn the warnings into fatal errors like this
 =for test cut
 
 Note there are a few error conditions that are currently always fatal:
-incorrect arguments to C<use>, a completely empty command, and
+incorrect arguments to C<use>, incompatible options, a completely empty command, and
 a failure of L<IPC::Run3|IPC::Run3>.
+
+(Hint: If you want to catch fatal errors, you can look into L<Try::Tiny|Try::Tiny> or a similar module.)
 
 =head1 Functional Interface
 
@@ -353,6 +362,37 @@ Setting this boolean option causes the return value of the function to be
 L<chomped|perlfunc/chomp>.
 This option has no effect if you're using the option L</stdout>.
 
+=head2 C<both>
+
+Setting this boolean option has a different effect depending on whether the
+function is called in list context or in scalar context - see also L</Return Values>.
+You cannot use this option together with L</stdout>, L</stderr> or L</fail_on_stderr>.
+
+In scalar context, the function returns the entire C<STDOUT> plus C<STDERR>
+of the executed command merged as one string. Note that the order of output on these two
+streams is not always well-defined; they may be mixed together.
+This is still useful if, for example, you know the command outputs on C<STDERR> I<only>
+and you want an easier way to capture it than the L</stderr> option.
+
+In list context, the function returns three values:
+the entire C<STDOUT> as one string, the entire C<STDERR> as one string,
+and the exit code of the command. This is somewhat similar to
+L<Capture::Tiny|Capture::Tiny>'s C<capture> used together with C<system>
+(except that returns C<$?> and not the exit code).
+
+ # call an external perl process for this example
+ use IPC::Run3::Shell {both=>1}, "perl";
+ my ($stdout, $stderr, $exitcode) =  perl {allow_exit=>123}, '-e',
+   ' print "Foo\n"; warn "Bar\n"; exit 123 ';
+ # $stdout gets "Foo\n", $stderr gets "Bar\n" and $exitcode==123
+
+=for test
+ is $stdout, "Foo\n";
+ is $stderr, "Bar\n";
+ is $exitcode, 123;
+
+=for test cut
+
 =head2 C<stdin>
 
 =head2 C<stdout>
@@ -433,11 +473,14 @@ or vice versa if you don't touch the other.)
 If L<IPC::Run3|IPC::Run3>'s behavior changes in the future, that behavior will
 simply be passed through by this module.
 
+You can't use the C<stderr> option together with L</fail_on_stderr>.
+You can't use C<stdout> or C<stderr> together with L</both>.
+
 =head2 C<fail_on_stderr>
 
 If this boolean option is set,
 any output to STDERR (except for a single C<$/>) is considered a fatal error.
-This option may not be specified together with L</stderr>
+This option may not be specified together with L</stderr> or L</both>
 (this is currently a fatal error).
 Note that turning this option on means that C<STDERR> is always captured
 and not displayed.
@@ -491,36 +534,51 @@ in case of errors.)
 
 =head1 Return Values
 
-If B<executing the command fails> in any way, such as the command returning
-an unexpected exit code, this generates an optional and optionally fatal warning,
-see L</Warnings>.
-In the case that the underlying L<system|perlfunc/system> call (or equivalent)
-fails, the function will return undef or the empty list depending on context.
-Otherwise, either the exit code or the (possibly unfinished) command's C<STDOUT>
-is returned, as described here.
-If you're I<expecting> a nonzero return code from a system command, see the
-option L</allow_exit>. See also the option L</fail_on_stderr>.
-(Hint: If you want to catch fatal errors, you can look into L<Try::Tiny|Try::Tiny> or a similar module.)
+In the following table, "C<OUT>" and "C<ERR>" refer to the C<STDOUT> and
+C<STDERR> of the executed command.
+The options L</both>, L</stdout> and L</stderr> are described in their
+respective sections.
 
-If you're using B<the option L</stdout>>, the return value of the function
-will be the exit code of the system command and never the command's C<STDOUT>.
+=for test ignore
 
-If you call the function in B<list context>, the return value of the function
-will be a list consisting of the command's C<STDOUT> output split on
-the L<input record separator C<$E<sol>>|perlvar/"$/">.
-In other words, you'll normally get a list of the lines of the output.
-See also the option L</irs>.
+           |    Void Context    |   Scalar Context   |    List Context    |
+ ==========+====================+====================+====================+
+  system() |                    | return undef       | return empty list  |
+  fails    | also generates optional warning that can be made fatal[1]    |
+ ----------+--------------------+--------------------+--------------------+
+  Bad exit |                    | output as below, but may be incomplete  |
+  code[2]  | also generates optional warning that can be made fatal[1]    |
+ ==========+====================+====================+====================+
+  Default  | OUT and ERR are    | OUT is returned    | OUT is returned as |
+           | not redirected,    | as one big string  | a list of lines[4] |
+           | they are passed    |    ERR not redirected by default[3]     |
+ ==========+ thru to script's   +====================+====================+
+  Option   | STDOUT and STDERR  | return merged OUT  | return a list of   |
+  "both"   |                    | and ERR            | (OUT,ERR,exitcode) |
+ ==========+====================+====================+====================+
+  Option   | OUT is redirected as requested (ERR handled separately)      |
+  "stdout" | Function always returns the exit code                        |
+ ==========+==============================================================+
+  Option   | ERR is redirected as requested (OUT handled separately)      |
+  "stderr" |                                                              |
+ ==========+==============================================================+
 
-If you call a function in B<scalar context>, the function will return the entire
-C<STDOUT> output of the command as one string.
+=for test
 
-If you call a function in B<void context>,
-and you're not using the option L</stdout>,
-the output of the command will be sent to your C<STDOUT>.
-
-You should always be able to inspect the B<exit code> of the system command in
+You should always be able to inspect the exit code of the system command in
 Perl's L<C<$?>|perlvar/"$?"> variable.
-See the documentation of L<Perl's system()|perlfunc/system> for an example of how to interpret C<$?>.
+See the documentation of L<Perl's C<system()>|perlfunc/system> for an example of how to interpret C<$?>.
+
+[1] This is described in L</Warnings>.
+
+[2] If you're I<expecting> a nonzero return code from a system command,
+see the option L</allow_exit>.
+
+[3] C<STDERR> can be handled via the options L</stderr> or L</fail_on_stderr>.
+
+[4] More exactly, the command's C<STDOUT> output is split on the L<input record separator C<$E<sol>>|perlvar/"$/">.
+Since that's the line separator by default, you'll I<normally> get a list of the lines of the output,
+unless you change C<$/>, which you can also do via the option L</irs>.
 
 =head1 Portability
 
@@ -542,7 +600,7 @@ A few things to be aware of:
 As described in L</Return Values>,
 the functions provided by this module act differently depending on the
 context they are called in (void, scalar and list) and some of the options
-(e.g. L</stdout>). While this is an attempt
+(e.g. L</stdout> and L</both>). While this is an attempt
 to provide a DWIM (Do What I Mean) interface, the difference in behavior might
 be subtle and lead to a bit of confusion.
 

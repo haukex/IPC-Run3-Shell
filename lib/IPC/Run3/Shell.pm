@@ -41,7 +41,7 @@ use IPC::Run3 ();
 
 my @RUN3_OPTS = qw/ binmode_stdin binmode_stdout binmode_stderr append_stdout append_stderr return_if_system_error /;
 my %KNOWN_OPTS = map { $_=>1 } @RUN3_OPTS,
-	qw/ show_cmd allow_exit irs chomp stdin stdout stderr fail_on_stderr /;
+	qw/ show_cmd allow_exit irs chomp stdin stdout stderr fail_on_stderr both /;
 
 our $OBJECT_PACKAGE;
 {
@@ -149,6 +149,12 @@ sub make_cmd {  ## no critic (ProhibitExcessComplexity)
 		}
 		croak __PACKAGE__.": can't use options stderr and fail_on_stderr at the same time"
 			if exists $opt{stderr} && $opt{fail_on_stderr};
+		croak __PACKAGE__.": can't use options both and stdout at the same time"
+			if $opt{both} && exists $opt{stdout};
+		croak __PACKAGE__.": can't use options both and stderr at the same time"
+			if $opt{both} && exists $opt{stderr};
+		croak __PACKAGE__.": can't use options both and fail_on_stderr at the same time"
+			if $opt{both} && $opt{fail_on_stderr};
 		# assemble command (after having processed any option hashes etc.)
 		my @fcmd = (@mcmd, @acmd);
 		croak __PACKAGE__.": empty command" unless @fcmd;
@@ -156,26 +162,12 @@ sub make_cmd {  ## no critic (ProhibitExcessComplexity)
 			if grep { !defined || ref } @fcmd;
 		@fcmd = map { defined() ? $_ : '' } @fcmd;
 		
-		# ### STDOUT Redirection
-		# wantarray: the context of the function call
-		# capture: whether we need to / should capture the command output,
-		#	or instead pass through to our STDOUT
-		#	("stdout" = option "stdout" was specified, so capturing depends on that)
-		# return: what the function should return
-		# X = don't care
-		#
-		# _wantarray____|_capture_|_return____
-		#  undef=void   | no      | X
-		#  false=scalar | yes     | slurp
-		#   true=list   | yes     | lines
-		#  undef=void   | stdout  | X
-		#  false=scalar | stdout  | exit code
-		#   true=list   | stdout  | exit code
-		
 		# prepare STDOUT redirection
 		my ($out, $stdout) = ('');
-		if (exists $opt{stdout})
+		if (exists $opt{stdout})  ## no critic (ProhibitCascadingIfElse)
 			{ $stdout = $opt{stdout} }
+		elsif ($opt{both})
+			{ $stdout = defined(wantarray) ? \$out : undef }
 		elsif (wantarray)
 			{ $stdout = $out = [] }
 		elsif (defined(wantarray))
@@ -188,6 +180,8 @@ sub make_cmd {  ## no critic (ProhibitExcessComplexity)
 			{ $stderr = $opt{stderr} }
 		elsif ($opt{fail_on_stderr})
 			{ $stderr = \$err }
+		elsif ($opt{both})
+			{ $stderr = wantarray ? \$err : ( defined(wantarray) ? \$out : undef ) }
 		else
 			{ $stderr = undef }
 		# prepare options hash
@@ -219,6 +213,10 @@ sub make_cmd {  ## no critic (ProhibitExcessComplexity)
 		return unless defined wantarray;
 		if (exists $opt{stdout})
 			{ return $exitcode }
+		elsif ($opt{both}) {
+			chomp($out,$err) if $opt{chomp};
+			return wantarray ? ($out, $err, $exitcode) : $out
+		}
 		elsif (wantarray) {
 			chomp(@$out) if $opt{chomp};
 			return @$out
