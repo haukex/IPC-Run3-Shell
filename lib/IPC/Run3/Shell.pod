@@ -305,6 +305,8 @@ the rest are the L<usual arguments to import|/Arguments to use>.
      echo("Hello, World");
  }
 
+=for test cut
+
 =head1 Options
 
 Options can be set in several different places:
