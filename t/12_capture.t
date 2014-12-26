@@ -50,8 +50,9 @@ is $s->perl({stdin=>\"quz\nbaz"},'-e','$x=<STDIN>;print $x?"<<".uc($x).">>":"und
 }
 
 { # stderr only (scalar context, should return stdout)
-	my $e;
-	is $s->perl({stderr=>\$e},'-e','warn "bar\n"; print "foo\n"'), "foo\n", "stdout/stderr 2";
+	my ($x,$e);
+	output_is { $x = $s->perl({stderr=>\$e},'-e','warn "bar\n"; print "foo\n"') } '', '', "stdout/stderr 2";
+	is $x, "foo\n", "return value check";
 	is $?, 0, "exit value check";
 	is $e, "bar\n", "stderr check";
 }
@@ -64,8 +65,9 @@ is $s->perl({stdin=>\"quz\nbaz"},'-e','$x=<STDIN>;print $x?"<<".uc($x).">>":"und
 }
 
 { # all three (should return exit status, should capture stdout&err)
-	my (@o,$e);
-	is $s->perl({stdin=>\"foo\nbar",stdout=>\@o,stderr=>\$e,allow_exit=>[123]},'-pe','warn "quz\n"; END{$?=123}'), 123, "stdout/stderr 4";
+	my ($x,@o,$e);
+	output_is { $x = $s->perl({stdin=>\"foo\nbar",stdout=>\@o,stderr=>\$e,allow_exit=>[123]},'-pe','warn "quz\n"; END{$?=123}') } '', '', "stdout/stderr 4";
+	is $x, 123, "return value check";
 	is $?, 123<<8, "exit value check";
 	is_deeply \@o, ["foo\n","bar"], "stdout check";
 	is $e, "quz\nquz\n", "stderr check";
