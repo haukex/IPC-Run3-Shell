@@ -89,64 +89,6 @@ output_is { $s->perl({fail_on_stderr=>1},'-e','print STDERR "\n"'); 1
 output_is { $s->perl({fail_on_stderr=>1,irs=>'A'},'-e','print STDERR "A"'); 1
 	} '', '', 'fail_on_stderr nofail 4';
 
-# redirection tests
-=for comment
-TODO Later: The following tests fail when run as part of the harness when builing for Perl 5.8.9
-(they work just fine when run individually)
-Since these tests really just check IPC::Run3 functionality, and we've said that we're
-going to rely on IPC::Run3 being tested enough, I think it's ok to disable them until
-the issue is figured out.
-
-output_is { $s->perl({stdout=>\*STDERR},'-MIO::Handle','-e','print STDOUT "ooo\n"; STDOUT->flush; print STDERR "eee\n"'); 1 }
-	"", "ooo\neee\n", 'stdout -> stderr';
-output_is { $s->perl({stderr=>\*STDOUT},'-MIO::Handle','-e','print STDOUT "ooo\n"; STDOUT->flush; print STDERR "eee\n"'); 1 }
-	"ooo\neee\n", "", 'stderr -> stdout';
-
-=cut
-
-=for comment
-We have disabled this block of tests because instead, we've simply documented
-that any creative redirection of filehandles is dependent on the behavior of
-IPC::Run3 (which might change in the future).
-NOTE: If re-enabling this block, remove the underscore from "TO_DO" below!
-
-# NOTE the following tests show that the way IPC::Run3 (currently!) works is that the stderr redirection
-# takes effect first, and after that the stdout redirection takes effect.
-# If IPC::Run3 ever changes that, these tests will break (and the TO DO tests below may start passing)
-# Maybe we should make the following tests TO DO instead?
-{
-	my $e;
-	output_is { $s->perl({stdout=>\*STDERR,stderr=>\$e},'-MIO::Handle','-e','print STDOUT "ooo\n"; STDOUT->flush; print STDERR "eee\n"'); 1 }
-		"", "ooo\n", 'stdout -> stderr w/ capt';
-	is $e, "eee\n", 'stderr';
-}
-{
-	my $o;
-	output_is { $s->perl({stdout=>\$o,stderr=>\*STDOUT},'-MIO::Handle','-e','print STDOUT "ooo\n"; STDOUT->flush; print STDERR "eee\n"'); 1 }
-		"", "", 'stderr -> stdout w/ capt';
-	is $o, "ooo\neee\n", 'stdout';
-}
-# NOTE this test checks the current state of things;
-# the TO DO swap test below might be a "nice-to-have" feature?
-output_is { $s->perl({stdout=>\*STDERR,stderr=>\*STDOUT},'-MIO::Handle','-e','print STDOUT "ooo\n"; STDOUT->flush; print STDERR "eee\n"'); 1 }
-	"", "ooo\neee\n", 'stderr <-> stdout';
-
-# not using output_is here because that doesn't seem to work with the the TO DO block
-use Capture::Tiny 'capture';
-# check IPC::Run3 first cause that's the source of the issue
-use IPC::Run3 'run3';
-my ($out0, $err0) = capture { run3(['perl','-e','print STDOUT "ooo\n"; print STDERR "eee\n"'],undef,\*STDERR,\*STDOUT) };
-is $?, 0, 'run3 swap exit code';
-my ($out1, $err1) = capture { $s->perl({stdout=>\*STDERR,stderr=>\*STDOUT},'-e','print STDOUT "ooo\n"; print STDERR "eee\n"') };
-is $?, 0, 'our swap exit code';
-TO_DO: { local $TO_DO = "swapping of STDOUT / STDERR not supported (yet??)";
-	is $out0, "eee\n", 'run3 swapped stdout';
-	is $err0, "ooo\n", 'run3 swapped stderr';
-	is $out1, "eee\n", 'our swapped stdout';
-	is $err1, "ooo\n", 'our swapped stderr';
-}
-
-=cut
 
 done_testing;
 

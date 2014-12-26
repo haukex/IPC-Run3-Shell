@@ -24,6 +24,7 @@ t/42_os_win32.t
 t/90_author_critic.t
 t/91_author_pod.t
 t/92_author_cover.t
+t/93_author_ipc_run3.t
 t/IPC_Run3_Shell_Testlib.pm
 t/perlcriticrc
 t/Test_Pod_Verbatim_Parser.pm
