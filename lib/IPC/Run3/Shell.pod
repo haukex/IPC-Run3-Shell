@@ -623,8 +623,8 @@ The tests for this module require that you have the C<perl> executable in your C
 
 If you notice any other portability issues, please let me know!
 
-(Of course, scripts I<using> this module to call system commands will often
-not be portable, but that's not really this module's concern C<;-)> )
+Of course, scripts I<using> this module to call system commands will often
+not be portable, but that's simply the nature of scripts that call system commands.
 
 =head1 Caveats
 
@@ -733,7 +733,14 @@ Larry Wall and others wrote the original L<Shell|Shell> in 1994,
 with various contributions throughout the years.
 L<Shell|Shell> is Copyright (c) 2005 by the Perl 5 Porters.
 
-L<IPC::Run3>
+L<IPC::Run3> - I chose this module from the plethora of similar modules
+for several reasons: it handles all three STDOUT, STDERR and STDIN;
+it runs on Win32; it allows avoiding the shell;
+no non-core dependencies (except on Windows);
+and its test statistics are currently nearly perfect.
+While it doesn't support a few features that some of the more advanced modules do,
+like timeouts or interactively communicating with the subprocess,
+I hope it'll be enough for the majority of cases.
 
 L<Capture::Tiny> - yet another capturing module.
 Its documentation includes a list of lots more such modules.
