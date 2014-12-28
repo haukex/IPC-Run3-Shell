@@ -33,6 +33,12 @@ use warnings FATAL=>'IPC::Run3::Shell';
 # - Calling an external perl should be relatively platform-independent
 # - The point of these tests is primarily to test this module, not IPC::Run3
 
+# We're not using an absolute path to perl because most users of this module
+# will not be using absolute paths either, instead doing the equivalent of
+# "use IPC::Run3::Shell qw/perl/;", which requires "perl" to be in the $PATH.
+# perl being in $PATH is a documented requirement and experience with CPAN
+# Testers has shown this works just about everywhere.
+
 # check warns() and output_is() from our test lib
 is_deeply [ warns { warn "I am a warning\n"; } ], ["I am a warning\n"], 'test warns()';
 output_is { warn "I am warn\n"; print "I am output" } "I am output", "I am warn\n", 'test output_is()';

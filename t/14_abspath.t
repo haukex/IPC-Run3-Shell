@@ -20,17 +20,17 @@ use IPC_Run3_Shell_Testlib;
 
 use Test::More tests => 3;
 
-# Possible To-Do for Later: Have most tests use $^X instead of the perl in $PATH?
-# That would allow more tests to pass on systems without a working perl in the $PATH.
+# Note: The CPAN Testers wiki recommends to use $Config{perlpath} instead of $^X.
+use Config;
 
 use File::Spec::Functions 'file_name_is_absolute';
 # if the following check fails, the tests following it are inconclusive
-ok file_name_is_absolute($^X), "perl path is absolute (\$^X=$^X)";
+ok file_name_is_absolute($Config{perlpath}), "perl path is absolute ($Config{perlpath})";
 
-use IPC::Run3::Shell ':run', [ pl => $^X, '-e' ];
+use IPC::Run3::Shell ':run', [ pl => $Config{perlpath}, '-e' ];
 use warnings FATAL=>'IPC::Run3::Shell';
 
 is pl("print 'baz'"), 'baz', 'alias with full pathname';
 
-is run($^X,'-e','print "quz"'), 'quz', 'run with full pathname';
+is run($Config{perlpath},'-e','print "quz"'), 'quz', 'run with full pathname';
 

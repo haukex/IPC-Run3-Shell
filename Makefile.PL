@@ -46,6 +46,7 @@ WriteMakefile(
 		'File::Temp'             => 0,
 		'Exporter'               => 0,
 		'base'                   => 0,
+		'Config'                 => 0,
 		# note I haven't included modules needed for author tests here
 	},
 );
