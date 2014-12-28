@@ -738,52 +738,10 @@ L<IPC::Run3>
 L<Capture::Tiny> - yet another capturing module.
 Its documentation includes a list of lots more such modules.
 
-=head2 Shell Scripts
-
-If you'd like to write "shell script-like" Perl scripts,
-here are a few modules that I have found very useful in doing so.
-Many of these are in the Perl core.
-
-=over
-
-=item *
-
-L<Path::Class|Path::Class> (filename manipulation)
-
-=item *
-
-L<File::pushd|File::pushd> (like L<bash|bash(1)>'s C<pushd>)
-
-=item *
-
-Many of the core modules in the C<File::> namespace,
-especially
-L<File::Spec::Functions|File::Spec::Functions>,
-L<File::Basename|File::Basename>,
-L<File::stat|File::stat>,
-L<File::Copy|File::Copy>,
-L<File::Path|File::Path>,
-L<File::Find|File::Find>, and
-L<File::Temp|File::Temp>.
-Also there's L<File::Find::Rule|File::Find::Rule> from CPAN.
-
-=item *
+L<Shell::Tools|Shell::Tools> - reduce boilerplate in Perl shell scripts
+(also includes easy access to this module!)
 
 L<Env|Env> (tie environment variables to Perl variables)
-
-=item *
-
-L<Cwd|Cwd> (current working directory) and
-L<FindBin|FindBin> (find script's location)
-
-=item *
-
-And a few small and useful supporting modules:
-L<Getopt::Std|Getopt::Std> (simple command line options),
-L<Try::Tiny|Try::Tiny> (error handling), and
-L<Config::Tiny|Config::Tiny> (simple config file handling).
-
-=back
 
 =head1 Author, Copyright, and License
 
