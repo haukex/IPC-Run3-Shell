@@ -86,6 +86,10 @@ is warns { # warning tests
 			is $x, "foo", "warning test 3C";
 			is $s->perl('-e','kill 9, $$'), '', "warning test 4A"; is $?, $^O eq 'MSWin32' ? 9<<8 : 9, "warning test 4B";
 		};
+	# on some Windows systems, there is an extra warning like the following
+	# (seen on some CPAN Testers results for v0.51)
+	if ($^O eq 'MSWin32' && @w1==5) # this workaround is slightly hackish
+		{ like splice(@w1,1,1), qr/\QCan't spawn "cmd.exe"/, "extra Windows warning" }
 	is @w1, 4, "warning test count";
 	like $w1[0], qr/exit (status|value) 1\b/, "warning test 1C";
 	like $w1[1], qr/\QCommand "ignore_this_error_it_is_intentional" failed/, "warning test 2C";
@@ -112,7 +116,7 @@ is warns { # warning tests
 	use warnings FATAL=>'all';
 	no warnings 'IPC::Run3::Shell';  ## no critic (ProhibitNoWarnings)
 	ok exception { my $x = 0 + undef; }, 'double-check warning fatality 2';
-	is warns {
+	my @w4 = warns {
 			# note these are just copied from the "warnings tests" above
 			is $s->perl('-e','print "foo"; exit 1'), "foo", "no warn 1A"; is $?, 1<<8, "no warn 1B";
 			ok !$s->ignore_this_error_it_is_intentional(), "no warn 2A"; is $?, $^O eq 'MSWin32' ? 0xFF00 : -1, "no warn 2B";
@@ -124,7 +128,10 @@ is warns { # warning tests
 			is $s->perl('-e','print ">>@ARGV<<"','--','x',undef,0,undef,'y'), ">>x  0  y<<", "no warn 6";
 			like $s->perl('-e','print ">>@ARGV<<"','--','x',[1,2],'y'), qr/^>>x ARRAY\(0x[0-9a-fA-F]+\) y<<$/, "no warn 7";
 			is $s->perl({_BAD_OPT=>1},'-e','print "foo"'), "foo", "unknown opt 3";
-		}, 0, "no warnings";
+		};
+	if ($^O eq 'MSWin32' && @w4==1) # same workaround as above
+		{ like shift(@w4), qr/\QCan't spawn "cmd.exe"/, "extra Windows warning" }
+	is @w4, 0, "no warnings";
 	# make sure fail_on_stderr is still fatal
 	like exception { $s->perl({fail_on_stderr=>1},'-e','print STDERR "bang"') },
 		qr/\Qwrote to STDERR: "bang"/, "fail_on_stderr without warnings";
