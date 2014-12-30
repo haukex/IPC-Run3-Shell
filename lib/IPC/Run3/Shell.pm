@@ -45,7 +45,8 @@ my %KNOWN_OPTS = map { $_=>1 } @RUN3_OPTS,
 
 our $OBJECT_PACKAGE;
 {
-	package IPC::Run3::Shell::Autoload;  ## no critic (ProhibitMultiplePackages)
+	package  ## no critic (ProhibitMultiplePackages)
+		IPC::Run3::Shell::Autoload; # hide from PAUSE by splitting onto two lines
 	BEGIN { $IPC::Run3::Shell::OBJECT_PACKAGE = __PACKAGE__ }
 	our $AUTOLOAD;
 	sub AUTOLOAD {  ## no critic (ProhibitAutoloading)
