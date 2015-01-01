@@ -388,7 +388,7 @@ presence of this option in the options hash means the option is set.
 
 =head2 C<chomp>
 
-Setting this boolean option causes the return value of the function to be
+Setting this boolean option causes the return value(s) of the function to be
 L<chomped|perlfunc/chomp>.
 This option has no effect if you're using the option L</stdout>.
 
@@ -509,7 +509,7 @@ You can't use C<stdout> or C<stderr> together with L</both>.
 =head2 C<fail_on_stderr>
 
 If this boolean option is set,
-any output to STDERR (except for a single C<$/>) is considered a fatal error.
+any output to C<STDERR> (except for a single C<$/>) is considered a fatal error.
 This option may not be specified together with L</stderr> or L</both>
 (this is currently a fatal error).
 Note that turning this option on means that C<STDERR> is always captured
@@ -604,7 +604,7 @@ See the documentation of L<Perl's C<system()>|perlfunc/system> for an example of
 [2] If you're I<expecting> a nonzero return code from a system command,
 see the option L</allow_exit>.
 Currently, a command being terminated due to a signal will generate a
-(optional/optionally fatal) L<warning|/Warnings>,
+(optional/optionally fatal) L<warning|/Warnings> and
 there is no equivalent of L</allow_exit> for signals.
 
 [3] C<STDERR> can be handled via the options L</stderr> or L</fail_on_stderr>.
@@ -705,7 +705,7 @@ various interpolations and such, with all the possible safety implications
 you could do something like this:
 
  use IPC::Run3::Shell [sh => 'sh', '-c'];
- sh 'echo $HOME >&2';     # prints _the_shell's_ $HOME to its STDERR
+ sh 'echo $HOME >&2';     # prints _the_shell's_ $HOME to _its_ STDERR
 
 =for test cut
 
@@ -734,7 +734,7 @@ with various contributions throughout the years.
 L<Shell|Shell> is Copyright (c) 2005 by the Perl 5 Porters.
 
 L<IPC::Run3> - I chose this module from the plethora of similar modules
-for several reasons: it handles all three STDOUT, STDERR and STDIN;
+for several reasons: it handles all three C<STDOUT>, C<STDERR> and C<STDIN>;
 it runs on Win32; it allows avoiding the shell;
 no non-core dependencies (except on Windows);
 and its test statistics are currently nearly perfect.
@@ -742,13 +742,14 @@ While it doesn't support a few features that some of the more advanced modules d
 like timeouts or interactively communicating with the subprocess,
 I hope it'll be enough for the majority of cases.
 
+L<Shell::Tools|Shell::Tools> - reduce boilerplate in Perl shell scripts,
+also includes easy access to this module!
+
 L<Capture::Tiny> - yet another capturing module.
 Its documentation includes a list of lots more such modules.
 
-L<Shell::Tools|Shell::Tools> - reduce boilerplate in Perl shell scripts
-(also includes easy access to this module!)
-
-L<Env|Env> (tie environment variables to Perl variables)
+L<Env|Env> - tie environment variables to Perl variables, similar in spirit
+to this module
 
 =head1 Author, Copyright, and License
 
