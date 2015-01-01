@@ -1,7 +1,8 @@
 
 =head1 Name
 
-IPC::Run3::Shell - Perl extension for easy execution of system commands
+IPC::Run3::Shell - Perl extension for calling system commands
+as if they were Perl functions
 
 =head1 Synopsis
 

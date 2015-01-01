@@ -3,7 +3,8 @@ IPC::Run3::Shell
 
 This is the distribution of the Perl module "IPC::Run3::Shell".
 
-It is a Perl extension for easy execution of system commands.
+It is a Perl extension that allows calling system commands
+as if they were Perl functions.
 
 Please see the module's documentation (POD) for details
 (try the command "perldoc lib/IPC/Run3/Shell.pod")
