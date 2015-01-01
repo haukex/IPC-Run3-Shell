@@ -1,6 +1,9 @@
 Revision history for Perl extension IPC::Run3::Shell.
 
-0.52	Thu, Jan  1 2015
+0.54	not yet released
+	- ...
+
+0.52	Thu, Jan  1 2015	commit 7e1ab1fe4fe6fb57c6580682ea54231ad90433ca
 	- added "both" option
 	- added ->import_into("package", ...)
 	- various documentation updates
