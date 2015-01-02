@@ -148,6 +148,8 @@ sub make_cmd {  ## no critic (ProhibitExcessComplexity)
 				$_ = 0+$_; # so later usage as a number isn't a fatal warning
 			}
 		}
+		# Possible To-Do for Later: Define priorities for incompatible options so we can carp instead of croaking?
+		# Also maybe look at some other places where we croak at runtime to see if there is any way to carp there instead.
 		croak __PACKAGE__.": can't use options stderr and fail_on_stderr at the same time"
 			if exists $opt{stderr} && $opt{fail_on_stderr};
 		croak __PACKAGE__.": can't use options both and stdout at the same time"
