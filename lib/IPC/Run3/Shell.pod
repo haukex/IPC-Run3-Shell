@@ -159,14 +159,14 @@ If something goes wrong, an optional and optionally fatal warning is raised, see
 Additional features are described in the rest of this documentation, such as
 L</Additional Functions>.
 
-The command and its argument list should be plain scalars,
-and not references, objects, or C<undef>,
+The command and its argument list should only consist of plain scalars
+and L<option hashes|/Options>, but not references, objects, or C<undef>,
 otherwise this will trigger a (optional/optionally fatal) L<warning|/Warnings>.
-This module changes C<undef> to C<""> (this behavior was added in v0.51)
-and passes references through to L<IPC::Run3|IPC::Run3>,
-which may cause unintended behavior!
 If you want to use objects that stringify to a useful value, you should explicitly
 stringify them yourself (e.g. C<"$object">) to avoid the warnings.
+This module changes C<undef> to C<""> (this behavior was added in v0.51).
+References are currently passed through to L<IPC::Run3|IPC::Run3>,
+which may cause unintended behavior, and this behavior may change in the future.
 
 A note on terminology: This documentation uses the term "system command"
 to refer to external executables / programs / scripts;

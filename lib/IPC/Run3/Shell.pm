@@ -159,6 +159,12 @@ sub make_cmd {  ## no critic (ProhibitExcessComplexity)
 		# assemble command (after having processed any option hashes etc.)
 		my @fcmd = (@mcmd, @acmd);
 		croak __PACKAGE__.": empty command" unless @fcmd;
+		#TODO Later: Is warning on *all* references too annoying?
+		# On the one hand, the user passing a ref is probably a mistake,
+		# on the other, the following causes a warn on e.g. Path::Class objects.
+		# Idea: Use overload::Method() to check and only warn if it's a ref
+		# that probably won't stringify usefully.
+		# Note: This logic could be applied to import_into as well.
 		warnings::warnif(__PACKAGE__.": command/argument list contains undefined values and/or references/objects")
 			if grep { !defined || ref } @fcmd;
 		@fcmd = map { defined() ? $_ : '' } @fcmd;
