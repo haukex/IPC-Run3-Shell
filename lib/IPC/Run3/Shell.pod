@@ -162,7 +162,8 @@ L</Additional Functions>.
 The command and its argument list should be plain scalars,
 and not references, objects, or C<undef>,
 otherwise this will trigger a (optional/optionally fatal) L<warning|/Warnings>.
-This module changes C<undef> to C<""> and passes references through to L<IPC::Run3|IPC::Run3>,
+This module changes C<undef> to C<""> (this behavior was added in v0.51)
+and passes references through to L<IPC::Run3|IPC::Run3>,
 which may cause unintended behavior!
 If you want to use objects that stringify to a useful value, you should explicitly
 stringify them yourself (e.g. C<"$object">) to avoid the warnings.
@@ -337,6 +338,8 @@ the rest are the L<usual arguments to import|/Arguments to use>.
 
 =for test cut
 
+The C<import_into> method was added in v0.52.
+
 =head1 Options
 
 Options can be set in several different places:
@@ -424,6 +427,8 @@ L<Capture::Tiny|Capture::Tiny>'s C<capture> used together with C<system>
  is $exitcode, 123;
 
 =for test cut
+
+The C<both> option was added in v0.52.
 
 =head2 C<stdin>
 
