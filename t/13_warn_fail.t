@@ -29,8 +29,11 @@ my $s = IPC::Run3::Shell->new();
 # test some simple error cases
 like exception { run(); 1 },
 	qr/empty command/, "error checking 1";
-like exception { perl1('x',undef,'',0,'0E0',undef,'z'); 1 },
-	qr/undefined values?/, "undefs";
+{
+	use warnings FATAL=>'uninitialized';
+	like exception { perl1('x',undef,'',0,'0E0',undef,'z'); 1 },
+		qr/\bUse of uninitialized value in argument list\b/, "undefs";
+}
 like exception { run('perl','-e',[1,2]); 1 },
 	qr/contains?.+references/, "error checking 2";
 like exception { run('perl','-e',{a=>2},'--'); 1 },
@@ -40,9 +43,12 @@ like exception { run('perl','-e',sub {}); 1 },
 like exception { run('perl','-e',IPC::Run3::Shell->new()); 1 },
 	qr/contains?.+references/, "error checking 5";
 like exception { IPC::Run3::Shell->import({},'perl',{}); 1 },
-	qr/contains?.+references/, "import error checking 1";
-like exception { IPC::Run3::Shell->import({},'perl',undef); 1 },
-	qr/contains?.+undefined/, "import error checking 2";
+	qr/\bargument list contains references\b/, "import error checking 1";
+{
+	use warnings FATAL=>'uninitialized';
+	like exception { IPC::Run3::Shell->import({},undef,'perl'); 1 },
+		qr/\bUse of uninitialized value\b/, "import error checking 2";
+}
 like exception { IPC::Run3::Shell->import(':BAD_SYMBOL'); 1 },
 	qr/can't export "BAD_SYMBOL"/, "import error checking 3";
 like exception { IPC::Run3::Shell->import([]); 1 },
@@ -98,18 +104,19 @@ is warns { # warning tests
 	# make sure fail_on_stderr is still fatal
 	like exception { $s->perl({fail_on_stderr=>1},'-e','print STDERR "bang"') },
 		qr/\Qwrote to STDERR: "bang"/, "fail_on_stderr with nonfatal warnings";
+	# 'uninitialized' warnings should also be fatal
+	like exception { $s->perl('-e','print ">>@ARGV<<"','--','x',undef,0,undef,'y') },
+		qr/^Use of uninitialized value in argument list\b/, "undef fatal";
 	# we test for exceptions in several places, here we check that those are actually just fatal warnings
 	my @w3 = warns {
 			is $s->perl({allow_exit=>'A'},'-e','print "foo"'), "foo", "allow_exit warn 1A";
-			is $s->perl('-e','print ">>@ARGV<<"','--','x',undef,0,undef,'y'), ">>x  0  y<<", "undef/ref warn 1A";
 			like $s->perl('-e','print ">>@ARGV<<"','--','x',[1,2],'y'), qr/^>>x ARRAY\(0x[0-9a-fA-F]+\) y<<$/, "undef/ref warn 1B";
 			is $s->perl({_BAD_OPT=>1},'-e','print "foo"'), "foo", "unknown opt 2A";
 		};
-	is @w3, 4, "warn count";
+	is @w3, 3, "warn count";
 	like $w3[0], qr/allow_exit.+isn't numeric/, "allow_exit warn 1C";
-	like $w3[1], qr/undefined values?/, "undef/ref warn 1D";
-	like $w3[2], qr/contains?.+references/, "undef/ref warn 1E";
-	like $w3[3], qr/\Qunknown option "_BAD_OPT"/, "unknown opt 2B";
+	like $w3[1], qr/contains?.+references/, "undef/ref warn 1E";
+	like $w3[2], qr/\Qunknown option "_BAD_OPT"/, "unknown opt 2B";
 }, 0, "no unexpected warns";
 
 { # disable warnings
@@ -125,13 +132,15 @@ is warns { # warning tests
 			is $s->perl('-e','kill 9, $$'), '', "no warn 4A"; is $?, $^O eq 'MSWin32' ? 9<<8 : 9, "no warn 4B";
 			
 			is $s->perl({allow_exit=>'A'},'-e','print "foo"'), "foo", "no warn 5";
-			is $s->perl('-e','print ">>@ARGV<<"','--','x',undef,0,undef,'y'), ">>x  0  y<<", "no warn 6";
 			like $s->perl('-e','print ">>@ARGV<<"','--','x',[1,2],'y'), qr/^>>x ARRAY\(0x[0-9a-fA-F]+\) y<<$/, "no warn 7";
 			is $s->perl({_BAD_OPT=>1},'-e','print "foo"'), "foo", "unknown opt 3";
 		};
 	if ($^O eq 'MSWin32' && @w4==1) # same workaround as above
 		{ like shift(@w4), qr/\QCan't spawn "cmd.exe"/, "extra Windows warning" }
 	is @w4, 0, "no warnings";
+	# the uninitialized category should still be fatal too
+	like exception { $s->perl('-e','print ">>@ARGV<<"','--','x',undef,0,undef,'y') },
+		qr/^Use of uninitialized value in argument list\b/, "uninizialized still fatal here";
 	# make sure fail_on_stderr is still fatal
 	like exception { $s->perl({fail_on_stderr=>1},'-e','print STDERR "bang"') },
 		qr/\Qwrote to STDERR: "bang"/, "fail_on_stderr without warnings";

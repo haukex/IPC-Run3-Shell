@@ -34,6 +34,7 @@ WriteMakefile(
 		'Scalar::Util'           => 0,
 		'Data::Dumper'           => 0,
 		'warnings::register'     => 0,
+		'overload'               => 0,
 	},
 	TEST_REQUIRES  => {
 		# CPAN

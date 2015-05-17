@@ -23,6 +23,7 @@ use Carp;
 use warnings::register;
 use Scalar::Util qw/ blessed looks_like_number /;
 use Data::Dumper ();
+use overload ();
 
 # debugging stuff
 # either set env var or set this var externally (may set to a fh / glob ref)
@@ -80,10 +81,12 @@ sub import_into {
 	my ($class, $callpack, @export) = @_;
 	my %opt;
 	%opt = ( %opt, %{shift @export} ) while ref $export[0] eq 'HASH';
-	croak "$class use/import list contains undefined values and/or references/objects"
-		if grep { !defined || ref && ref ne 'ARRAY' } @export;
 	for my $exp (@export) {
-		if ( !ref($exp) && ( my ($sym) = $exp=~/^:(\w+)$/ ) ) {
+		if (!defined $exp) {
+			warnings::warnif('uninitialized','Use of uninitialized value in import');
+			next;
+		}
+		elsif ( !ref($exp) && $exp && ( my ($sym) = $exp=~/^:(\w+)$/ ) ) {
 			if ($sym eq 'run') {
 				# instead of exporting 'run', we actually export a make_cmd closure (with default options but *no* arguments)
 				debug "Exporting '${callpack}::$sym' => make_cmd("._cmd2str(\%opt).")" if $DEBUG;
@@ -101,6 +104,7 @@ sub import_into {
 		else {
 			my ($sym, @cmd) = ref $exp eq 'ARRAY' ? @$exp : ($exp, $exp);
 			croak "$class: no function name specified" unless $sym;
+			$sym = _strify($sym); # warn on refs
 			croak "$class: empty command for function \"$sym\"" unless @cmd;
 			debug "Exporting '${callpack}::$sym' => make_cmd("._cmd2str(\%opt, @cmd).")" if $DEBUG;
 			no strict 'refs';  ## no critic (ProhibitNoStrict)
@@ -141,6 +145,9 @@ sub make_cmd {  ## no critic (ProhibitExcessComplexity)
 		if ($allow_exit ne 'ANY') {
 			$allow_exit = [$allow_exit] unless ref $allow_exit eq 'ARRAY';
 			warnings::warnif(__PACKAGE__.": allow_exit is empty") unless @$allow_exit;
+			#TODO Later: numeric checking of allow_exit could probably be cleaned up:
+			# e.g. the warning should probably be issued in the "numeric" category
+			# (similar to how we're now issuing warnings in "uninitialized")
 			for (@$allow_exit) {
 				warnings::warnif(__PACKAGE__.": allow_exit value ".(defined($_)?"\"$_\"":"(undef)")." isn't numeric")
 					unless looks_like_number($_);
@@ -161,15 +168,8 @@ sub make_cmd {  ## no critic (ProhibitExcessComplexity)
 		# assemble command (after having processed any option hashes etc.)
 		my @fcmd = (@mcmd, @acmd);
 		croak __PACKAGE__.": empty command" unless @fcmd;
-		#TODO Later: Is warning on *all* references too annoying?
-		# On the one hand, the user passing a ref is probably a mistake,
-		# on the other, the following causes a warn on e.g. Path::Class objects.
-		# Idea: Use overload::Method() to check and only warn if it's a ref
-		# that probably won't stringify usefully.
-		# Note: This logic could be applied to import_into as well.
-		warnings::warnif(__PACKAGE__.": command/argument list contains undefined values and/or references/objects")
-			if grep { !defined || ref } @fcmd;
-		@fcmd = map { defined() ? $_ : '' } @fcmd;
+		# stringify the stringifiable things, handle undef, and warn on refs
+		@fcmd = map {_strify($_)} @fcmd;
 		
 		# prepare STDOUT redirection
 		my ($out, $stdout) = ('');
@@ -235,6 +235,50 @@ sub make_cmd {  ## no critic (ProhibitExcessComplexity)
 			return $out
 		}
 	}
+}
+
+# This function attempts to behave like normal Perl stringification, but it adds two things:
+# 1. Warnings on undef, in Perl's normal "uninitialized" category, the difference being that
+#    with "warnif", they will appear to originate in the calling code, and not in this function.
+# 2. Warn if we are passed a reference that is not an object with overloaded stringification,
+#    since that is much more likely to be a mistake on the part of the user instead of intentional.
+sub _strify {
+	my ($x) = @_;
+	if (!defined $x) {
+		warnings::warnif('uninitialized','Use of uninitialized value in argument list');
+		return "" }
+	elsif (blessed($x) && overload::Overloaded($x)) { # an object with overloading
+		if (overload::Method($x,'""')) # stringification explicitly defined, it'll work
+			{ return "$x" }
+		# Else, stringification is not explicitly defined - stringification *may* work through autogeneration, but it may also die.
+		# There doesn't seem to be a way to ask Perl if stringification will die or not other than trying it out with eval.
+		# See also: http://www.perlmonks.org/?node_id=1121710
+		# Reminder to self: "$x" will always be defined; even if overloaded stringify returns undef;
+		# undef interpolated into the string will cause warning, but the resulting empty string is still defined.
+		elsif (defined(my $rv = eval { "$x" }))
+			{ return $rv }
+		elsif ($@=~/\bno method found\b/) { # overloading failed, throw custom error
+			# Note: as far as I can tell the message "no method found"
+			# hasn't changed since its intoduction in Perl 5.000
+			# (e.g. git log -p -S 'no method found' gv.c )
+			# The following is an unclean workaround for the apparent issue that Carp in perl 5.6
+			# attempts to stringify the arguments to _strify, which triggers the very exception
+			# we were trying to catch with our "eval" above.
+			# Possible To-Do for Later: implement this workaround more cleanly by checking Carp's version, or some other smarter way?
+			if ( $]<5.008009 ) # Possible To-Do for Later: note I'm not sure exactly which versions require this workaround
+				{ die "Package ".ref($x)." doesn't overload stringification: $@" }  ## no critic (RequireCarping)
+			else
+				{ croak "Package ".ref($x)." doesn't overload stringification: $@" }
+		}
+		# something other than overloading failed, just re-throw
+		else { die $@ }  ## no critic (RequireCarping)
+		# Remember that Perl's normal behavior should stringification not be
+		# available is to die; we're just propagating that behavior outward.
+	}
+	else {
+		# Note that objects without any overloading will stringify using Perl's default mechanism
+		ref($x) and warnings::warnif(__PACKAGE__.": argument list contains references/objects");
+		return "$x" }
 }
 
 # function for sorta-pretty-printing commands
