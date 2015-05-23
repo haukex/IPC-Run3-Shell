@@ -93,7 +93,7 @@ subtest PathClass => sub {
 	my $f = Path::Class::File->new('testfile.txt');
 	my $sh = IPC::Run3::Shell->new();
 	is warns {
-		is $sh->echo($f), "$f\n", "stringifies correctly";
+		is $sh->perl('-e','print "$_\n" for @ARGV','--',$f), "$f\n", "stringifies correctly";
 	}, 0, "no warnings";
 };
 
