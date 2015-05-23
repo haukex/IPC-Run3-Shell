@@ -27,6 +27,19 @@ use warnings FATAL=>'IPC::Run3::Shell';
 
 my $s = IPC::Run3::Shell->new();
 
+# NOTE I'm not yet sure why the following differences in the platforms exist,
+# this is just based on results from CPAN Testers.
+my $SIG9_RETURNCODE = 9;
+my $SIG9_ERROR_RE = qr/signal 9, without coredump|\Qsignal "KILL" (9)\E/;
+if ($^O eq 'MSWin32') {
+	$SIG9_RETURNCODE = 9<<8;
+	$SIG9_ERROR_RE = qr/exit status 9\b/;
+}
+elsif ($^O eq 'haiku') {
+	$SIG9_RETURNCODE = 21;
+	$SIG9_ERROR_RE = qr/signal 21, without coredump/;
+}
+
 # test some simple error cases
 like exception { run(); 1 },
 	qr/empty command/, "error checking 1";
@@ -76,10 +89,7 @@ like exception { $s->perl('-e','exit 123'); 1 },
 	qr/exit (status|value) 123\b/, "fail 3";
 like exception { is $s->perl({_BAD_OPT=>1},'-e','print "foo"'), "foo", "unknown opt 1A" },
 	qr/\Qunknown option "_BAD_OPT"/, "unknown opt 1B";
-# NOTE that in Windows, apparently the following test causes perl to exit with "exit status 9"
-# instead of recognizing that it was killed by a signal.
-like exception { $s->perl('-e','kill 9, $$'); 1 },
-	( $^O eq 'MSWin32' ? qr/exit status 9\b/ : qr/signal 9, without coredump|\Qsignal "KILL" (9)\E/ ), "fail 4";
+like exception { $s->perl('-e','kill 9, $$'); 1 }, $SIG9_ERROR_RE, "fail 4";
 
 is warns { # warning tests
 	# make warnings nonfatal in a way compatible with Perl v5.6, which didn't yet have "NONFATAL"
@@ -93,7 +103,7 @@ is warns { # warning tests
 			ok !$s->ignore_this_error_it_is_intentional(), "warning test 2A"; is $?, $^O eq 'MSWin32' ? 0xFF00 : -1, "warning test 2B";
 			is $s->perl({stdout=>\my $x},'-e','print "foo"; exit 123'), 123, "warning test 3A"; is $?, 123<<8, "warning test 3B";
 			is $x, "foo", "warning test 3C";
-			is $s->perl('-e','kill 9, $$'), '', "warning test 4A"; is $?, $^O eq 'MSWin32' ? 9<<8 : 9, "warning test 4B";
+			is $s->perl('-e','kill 9, $$'), '', "warning test 4A"; is $?, $SIG9_RETURNCODE, "warning test 4B";
 		};
 	# on some Windows systems, there is an extra warning like the following
 	# (seen on some CPAN Testers results for v0.51)
@@ -103,7 +113,7 @@ is warns { # warning tests
 	like $w1[0], qr/exit (status|value) 1\b/, "warning test 1C";
 	like $w1[1], qr/\QCommand "ignore_this_error_it_is_intentional" failed/, "warning test 2C";
 	like $w1[2], qr/exit (status|value) 123\b/, "warning test 3D";
-	like $w1[3], ( $^O eq 'MSWin32' ? qr/exit status 9\b/ : qr/signal 9, without coredump|\Qsignal "KILL" (9)\E/ ), "warning test 4C";
+	like $w1[3], $SIG9_ERROR_RE, "warning test 4C";
 	# make sure fail_on_stderr is still fatal
 	like exception { $s->perl({fail_on_stderr=>1},'-e','print STDERR "bang"') },
 		qr/\Qwrote to STDERR: "bang"/, "fail_on_stderr with nonfatal warnings";
@@ -133,7 +143,7 @@ is warns { # warning tests
 			ok !$s->ignore_this_error_it_is_intentional(), "no warn 2A"; is $?, $^O eq 'MSWin32' ? 0xFF00 : -1, "no warn 2B";
 			is $s->perl({stdout=>\my $x},'-e','print "foo"; exit 123'), 123, "no warn 3A"; is $?, 123<<8, "no warn 3B";
 			is $x, "foo", "no warn 3C";
-			is $s->perl('-e','kill 9, $$'), '', "no warn 4A"; is $?, $^O eq 'MSWin32' ? 9<<8 : 9, "no warn 4B";
+			is $s->perl('-e','kill 9, $$'), '', "no warn 4A"; is $?, $SIG9_RETURNCODE, "no warn 4B";
 			
 			like $s->perl('-e','print ">>@ARGV<<"','--','x',[1,2],'y'), qr/^>>x ARRAY\(0x[0-9a-fA-F]+\) y<<$/, "no warn 7";
 			is $s->perl({_BAD_OPT=>1},'-e','print "foo"'), "foo", "unknown opt 3";
