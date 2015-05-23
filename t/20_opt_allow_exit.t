@@ -20,6 +20,7 @@ use IPC_Run3_Shell_Testlib;
 
 use Test::More tests => 24;
 use Test::Fatal 'exception';
+## no critic (ProhibitComplexRegexes)
 
 use IPC::Run3::Shell;
 use warnings FATAL=>'IPC::Run3::Shell';
@@ -62,7 +63,7 @@ my @w2 = warns {
 			qr/\bexit (status|value) 5\b/, 'allow_exit err 4';
 	};
 is @w2, 3, "allow_exit numeric warn count";
-like $w2[$_], qr/\bisn't numeric\b.+\ballow_exit\b.+\bat \Q${\__FILE__}\E line\b/, "allow_exit numeric warn"
+like $w2[$_], qr/\bisn't numeric\b.+\ballow_exit\b.+\bat (?:\Q${\__FILE__}\E|.*\bTest\/Fatal\.pm) line\b/, "allow_exit numeric warn"
 	for 0..2;
 
 $s->perl({allow_exit=>[123]},{allow_exit=>undef},'-e','exit');

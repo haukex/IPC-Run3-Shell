@@ -20,6 +20,7 @@ use IPC_Run3_Shell_Testlib;
 
 use Test::More;
 use Test::Fatal 'exception';
+## no critic (ProhibitComplexRegexes)
 
 use IPC::Run3::Shell ':run', [ perl1 => 'perl', '-e', 'print "foo @ARGV"' ];
 use warnings FATAL=>'IPC::Run3::Shell';
@@ -83,7 +84,7 @@ is warns { # warning tests
 	no warnings FATAL=>'all'; use warnings;  ## no critic (ProhibitNoWarnings)
 	# the following is a workaround for Perl v5.6 not yet having the NONFATAL keyword;
 	# note we check below that this block does not produce any extra warnings even in v5.6
-	use warnings ($]<=5.008) ? (FATAL=>'uninitialized') : (FATAL=>'all', NONFATAL=>'IPC::Run3::Shell');
+	use warnings ($]<=5.008) ? (FATAL=>'uninitialized','numeric') : (FATAL=>'all', NONFATAL=>'IPC::Run3::Shell');
 	ok exception { my $x = 0 + undef; }, 'double-check warning fatality 1';
 	my @w1 = warns {
 			is $s->perl('-e','print "foo"; exit 1'), "foo", "warning test 1A"; is $?, 1<<8, "warning test 1B";
@@ -117,7 +118,7 @@ is warns { # warning tests
 	like $w3[1], qr/\Qunknown option "_BAD_OPT"/, "unknown opt 2B";
 	# the numeric category should still be fatal
 	like exception { $s->perl({allow_exit=>'A'},'-e','print "foo"') },
-		qr/\bisn't numeric\b.+\ballow_exit\b.+\bat \Q${\__FILE__}\E line\b/, "allow_exit warn 1C";
+		qr/\bisn't numeric\b.+\ballow_exit\b.+\bat (?:\Q${\__FILE__}\E|.*\bTest\/Fatal\.pm) line\b/, "allow_exit warn 1C";
 }, 0, "no unexpected warns";
 
 { # disable warnings
@@ -143,7 +144,7 @@ is warns { # warning tests
 		qr/^Use of uninitialized value in argument list\b/, "uninizialized still fatal here";
 	# the numeric category should still be fatal
 	like exception { $s->perl({allow_exit=>'A'},'-e','print "foo"') },
-		qr/\bisn't numeric\b.+\ballow_exit\b.+\bat \Q${\__FILE__}\E line\b/, "numeric still fatal here";
+		qr/\bisn't numeric\b.+\ballow_exit\b.+\bat (?:\Q${\__FILE__}\E|.*\bTest\/Fatal\.pm) line\b/, "numeric still fatal here";
 	# make sure fail_on_stderr is still fatal
 	like exception { $s->perl({fail_on_stderr=>1},'-e','print STDERR "bang"') },
 		qr/\Qwrote to STDERR: "bang"/, "fail_on_stderr without warnings";
