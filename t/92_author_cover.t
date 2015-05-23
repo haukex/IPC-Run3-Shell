@@ -35,9 +35,11 @@ BEGIN {
 		if $DEVEL_COVER && !$AUTHOR_TESTS;
 }
 
-use Test::More $AUTHOR_TESTS && $DEVEL_COVER ? (tests=>4)
+use Test::More $AUTHOR_TESTS && $DEVEL_COVER ? (tests=>6)
 	: (skip_all=>'only used in author coverage testing');
 use Test::Fatal 'exception';
+
+use OverloadTestClasses;
 
 # fiddle with debug switch to get full code coverage there
 BEGIN { $IPC::Run3::Shell::DEBUG = 0 }
@@ -56,6 +58,15 @@ is IPC::Run3::Shell::_cmd2str("foo",undef,"bar"),  ## no critic (ProtectPrivateS
 	"foo  bar", "_cmd2str coverage";
 
 IPC::Run3::Shell::Autoload::DESTROY();
+
+{ # cover the overload bug workaround code branch
+	local $overload::VERSION='1.03';
+	like exception { IPC::Run3::Shell::_strify( FakeNumberOnly->new(5) ) },  ## no critic (ProtectPrivateSubs)
+		qr/\bdoesn't overload string/,  "older overload version dies normally 1";
+	local $overload::VERSION=undef;
+	like exception { IPC::Run3::Shell::_strify( NotStrOrNumish->new(9) ) },  ## no critic (ProtectPrivateSubs)
+		qr/\bdoesn't overload string/,  "older overload version dies normally 2";
+}
 
 
 done_testing;
