@@ -56,6 +56,8 @@ like exception { IPC::Run3::Shell->import([]); 1 },
 	qr/no function name/, "import error checking 4";
 like exception { IPC::Run3::Shell->import(['']); 1 },
 	qr/no function name/, "import error checking 5";
+like exception { IPC::Run3::Shell->import(''); 1 },
+	qr/no function name/, "import error checking 5b";
 like exception { IPC::Run3::Shell->import(['x']); 1 },
 	qr/empty command/, "import error checking 6";
 like exception { IPC::Run3::Shell->make_cmd(); 1 },
@@ -157,6 +159,15 @@ is warns {
 		is 5 + undef, 5, "check warnings disabled";
 		like exception { $s->perl('-e','exit 123'); 1 }, qr/exit (status|value) 123\b/, "module warn only";
 	}, 0, "module warnings only";
+
+is warns { # warning only tests (i.e. all warnings enabled but nonfatal)
+	no warnings FATAL=>'all'; use warnings;  ## no critic (ProhibitNoWarnings)
+	my @w5 = warns {
+			IPC::Run3::Shell->import(undef);
+		};
+	is @w5, 1, "warning count";
+	like $w5[0], qr/\bUse of uninitialized value in import\b/i, "undef in import warn";
+}, 0, "no unexpected warns";
 
 
 done_testing;
