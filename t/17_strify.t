@@ -21,7 +21,7 @@ use FindBin ();
 use lib $FindBin::Bin;
 use IPC_Run3_Shell_Testlib;
 
-use Test::More tests=>6;
+use Test::More tests=>7;
 use Test::Fatal 'exception';
 
 use OverloadTestClasses;
@@ -84,6 +84,17 @@ subtest Object => sub { plan tests=>3;
 	};
 	is @w, 1, "warn count";
 	like $w[0], qr/\bargument list contains ref/, "_strify ref warn";
+};
+
+our $HAVE_PATH_CLASS;
+BEGIN { $HAVE_PATH_CLASS = eval q{ use Path::Class (); 1 } };  ## no critic (ProhibitStringyEval)
+subtest PathClass => sub {
+	plan $HAVE_PATH_CLASS || $AUTHOR_TESTS ? (tests=>2) : (skip_all=>"don't have Path::Class");
+	my $f = Path::Class::File->new('testfile.txt');
+	my $sh = IPC::Run3::Shell->new();
+	is warns {
+		is $sh->echo($f), "$f\n", "stringifies correctly";
+	}, 0, "no warnings";
 };
 
 
