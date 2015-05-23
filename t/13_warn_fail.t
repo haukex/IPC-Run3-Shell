@@ -109,14 +109,15 @@ is warns { # warning tests
 		qr/^Use of uninitialized value in argument list\b/, "undef fatal";
 	# we test for exceptions in several places, here we check that those are actually just fatal warnings
 	my @w3 = warns {
-			is $s->perl({allow_exit=>'A'},'-e','print "foo"'), "foo", "allow_exit warn 1A";
 			like $s->perl('-e','print ">>@ARGV<<"','--','x',[1,2],'y'), qr/^>>x ARRAY\(0x[0-9a-fA-F]+\) y<<$/, "undef/ref warn 1B";
 			is $s->perl({_BAD_OPT=>1},'-e','print "foo"'), "foo", "unknown opt 2A";
 		};
-	is @w3, 3, "warn count";
-	like $w3[0], qr/allow_exit.+isn't numeric/, "allow_exit warn 1C";
-	like $w3[1], qr/contains?.+references/, "undef/ref warn 1E";
-	like $w3[2], qr/\Qunknown option "_BAD_OPT"/, "unknown opt 2B";
+	is @w3, 2, "warn count";
+	like $w3[0], qr/contains?.+references/, "undef/ref warn 1E";
+	like $w3[1], qr/\Qunknown option "_BAD_OPT"/, "unknown opt 2B";
+	# the numeric category should still be fatal
+	like exception { $s->perl({allow_exit=>'A'},'-e','print "foo"') },
+		qr/\bisn't numeric\b.+\ballow_exit\b.+\bat \Q${\__FILE__}\E line\b/, "allow_exit warn 1C";
 }, 0, "no unexpected warns";
 
 { # disable warnings
@@ -131,7 +132,6 @@ is warns { # warning tests
 			is $x, "foo", "no warn 3C";
 			is $s->perl('-e','kill 9, $$'), '', "no warn 4A"; is $?, $^O eq 'MSWin32' ? 9<<8 : 9, "no warn 4B";
 			
-			is $s->perl({allow_exit=>'A'},'-e','print "foo"'), "foo", "no warn 5";
 			like $s->perl('-e','print ">>@ARGV<<"','--','x',[1,2],'y'), qr/^>>x ARRAY\(0x[0-9a-fA-F]+\) y<<$/, "no warn 7";
 			is $s->perl({_BAD_OPT=>1},'-e','print "foo"'), "foo", "unknown opt 3";
 		};
@@ -141,6 +141,9 @@ is warns { # warning tests
 	# the uninitialized category should still be fatal too
 	like exception { $s->perl('-e','print ">>@ARGV<<"','--','x',undef,0,undef,'y') },
 		qr/^Use of uninitialized value in argument list\b/, "uninizialized still fatal here";
+	# the numeric category should still be fatal
+	like exception { $s->perl({allow_exit=>'A'},'-e','print "foo"') },
+		qr/\bisn't numeric\b.+\ballow_exit\b.+\bat \Q${\__FILE__}\E line\b/, "numeric still fatal here";
 	# make sure fail_on_stderr is still fatal
 	like exception { $s->perl({fail_on_stderr=>1},'-e','print STDERR "bang"') },
 		qr/\Qwrote to STDERR: "bang"/, "fail_on_stderr without warnings";

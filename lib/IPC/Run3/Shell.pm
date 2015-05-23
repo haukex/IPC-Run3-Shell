@@ -145,14 +145,13 @@ sub make_cmd {  ## no critic (ProhibitExcessComplexity)
 		if ($allow_exit ne 'ANY') {
 			$allow_exit = [$allow_exit] unless ref $allow_exit eq 'ARRAY';
 			warnings::warnif(__PACKAGE__.": allow_exit is empty") unless @$allow_exit;
-			#TODO Later: numeric checking of allow_exit could probably be cleaned up:
-			# e.g. the warning should probably be issued in the "numeric" category
-			# (similar to how we're now issuing warnings in "uninitialized")
 			for (@$allow_exit) {
-				warnings::warnif(__PACKAGE__.": allow_exit value ".(defined($_)?"\"$_\"":"(undef)")." isn't numeric")
+				# We throw our own custom warning instead of Perl's regular warning because Perl's warning
+				# would be reported in this module instead of the calling code.
+				warnings::warnif('numeric','Argument "'.(defined($_)?$_:"(undef)").'" isn\'t numeric in allow_exit')
 					unless looks_like_number($_);
-				no warnings 'numeric';  ## no critic (ProhibitNoWarnings)
-				$_ = 0+$_; # so later usage as a number isn't a fatal warning
+				no warnings 'numeric', 'uninitialized';  ## no critic (ProhibitNoWarnings)
+				$_ = 0+$_; # so later usage as a number isn't a warning
 			}
 		}
 		# Possible To-Do for Later: Define priorities for incompatible options so we can carp instead of croaking?

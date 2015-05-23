@@ -4,6 +4,8 @@ Revision history for Perl extension IPC::Run3::Shell.
 	- Objects that stringify no longer warn when used as arguments, and
 	  using "undef" in the argument list now causes an "uninitialized"
 	  warning instead of the custom warnings category.
+	- Non-numeric values in "allow_exit" now warn in "numeric" category
+	  instead of the custom warnings category.
 
 0.52	Thu, Jan  1 2015	commit 7e1ab1fe4fe6fb57c6580682ea54231ad90433ca
 	- added "both" option

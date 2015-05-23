@@ -18,7 +18,7 @@ use FindBin ();
 use lib $FindBin::Bin;
 use IPC_Run3_Shell_Testlib;
 
-use Test::More tests => 20;
+use Test::More tests => 24;
 use Test::Fatal 'exception';
 
 use IPC::Run3::Shell;
@@ -50,12 +50,20 @@ my @w1 = warns {
 is @w1, 2, "warnings on empty allow_exit 1";
 like $w1[0], qr/allow_exit is empty/, "warnings on empty allow_exit 2";
 like $w1[1], qr/exit (status|value) 0\b/, "warnings on empty allow_exit 3";
-like exception { $s->perl({allow_exit=>'any'},'-e','exit 5'); 1 },
-	qr/allow_exit.+isn't numeric/, 'allow_exit err 2';
-like exception { $s->perl({allow_exit=>[0,'A',123]},'-e','exit 5'); 1 },
-	qr/allow_exit.+isn't numeric/, 'allow_exit err 3';
-like exception { $s->perl({allow_exit=>[0,undef,123]},'-e','exit 5'); 1 },
-	qr/allow_exit.+isn't numeric/, 'allow_exit err 4';
+my @w2 = warns {
+		# make warnings nonfatal in a way compatible with Perl v5.6, which didn't yet have "NONFATAL"
+		no warnings FATAL=>'all'; use warnings;  ## no critic (ProhibitNoWarnings)
+		use warnings FATAL=>'IPC::Run3::Shell';
+		like exception { $s->perl({allow_exit=>'any'},'-e','exit 5'); 1 },
+			qr/\bexit (status|value) 5\b/, 'allow_exit err 2';
+		like exception { $s->perl({allow_exit=>[0,'A',123]},'-e','exit 5'); 1 },
+			qr/\bexit (status|value) 5\b/, 'allow_exit err 3';
+		like exception { $s->perl({allow_exit=>[0,undef,123]},'-e','exit 5'); 1 },
+			qr/\bexit (status|value) 5\b/, 'allow_exit err 4';
+	};
+is @w2, 3, "allow_exit numeric warn count";
+like $w2[$_], qr/\bisn't numeric\b.+\ballow_exit\b.+\bat \Q${\__FILE__}\E line\b/, "allow_exit numeric warn"
+	for 0..2;
 
 $s->perl({allow_exit=>[123]},{allow_exit=>undef},'-e','exit');
 	is $?, 0, 'allow_exit unset 1';
