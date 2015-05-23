@@ -11,6 +11,8 @@ t/12_capture.t
 t/13_warn_fail.t
 t/14_abspath.t
 t/15_import_into.t
+t/16_overload.t
+t/17_strify.t
 t/20_opt_allow_exit.t
 t/21_opt_chomp.t
 t/22_opt_irs.t
@@ -26,5 +28,6 @@ t/91_author_pod.t
 t/92_author_cover.t
 t/93_author_ipc_run3.t
 t/IPC_Run3_Shell_Testlib.pm
+t/OverloadTestClasses.pm
 t/perlcriticrc
 t/Test_Pod_Verbatim_Parser.pm
