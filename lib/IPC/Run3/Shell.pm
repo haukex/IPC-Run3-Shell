@@ -260,11 +260,8 @@ sub _strify {
 			# Note: as far as I can tell the message "no method found"
 			# hasn't changed since its intoduction in Perl 5.000
 			# (e.g. git log -p -S 'no method found' gv.c )
-			# The following is an unclean workaround for the apparent issue that Carp in perl 5.6
-			# attempts to stringify the arguments to _strify, which triggers the very exception
-			# we were trying to catch with our "eval" above.
-			# Possible To-Do for Later: implement this workaround more cleanly by checking Carp's version, or some other smarter way?
-			if ( $]<5.008009 ) # Possible To-Do for Later: note I'm not sure exactly which versions require this workaround
+			# Perl bug #31793, which relates to overload::StrVal, apparently also caused problems with Carp
+			if (!$overload::VERSION || $overload::VERSION<1.04)
 				{ die "Package ".ref($x)." doesn't overload stringification: $@" }  ## no critic (RequireCarping)
 			else
 				{ croak "Package ".ref($x)." doesn't overload stringification: $@" }
