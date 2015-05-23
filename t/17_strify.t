@@ -66,7 +66,7 @@ subtest NormalStrify => sub { plan tests=>6;
 	}, 0, "no warnings";
 };
 
-subtest OverloadErrs => sub { plan tests=>4;
+subtest OverloadErrs => sub { plan tests=>5;
 	is warns {
 		like exception { IPC::Run3::Shell::_strify( FakeNumberOnly->new(5) ) },
 			qr/\bdoesn't overload string/,  "_strify FakeNumberOnly fails";
@@ -74,6 +74,8 @@ subtest OverloadErrs => sub { plan tests=>4;
 			qr/\bdoesn't overload string/,  "_strify NotStrOrNumish fails";
 		like exception { IPC::Run3::Shell::_strify( DiesOnStringify->new("1") ) },
 			qr/\bARRRGH\b/,  "_strify DiesOnStringify fails";
+		like exception { IPC::Run3::Shell::_strify( DiesOnNumify->new(1) ) },
+			qr/\bBLAMMO\b/,  "_strify DiesOnNumify fails";
 	}, 0, "no warnings";
 };
 

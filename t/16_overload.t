@@ -20,7 +20,7 @@ use FindBin ();
 use lib $FindBin::Bin;
 use IPC_Run3_Shell_Testlib;
 
-use Test::More tests=>9;
+use Test::More tests=>10;
 use Test::Fatal 'exception';
 
 use overload ();
@@ -106,5 +106,13 @@ subtest DiesOnStringify => sub { plan tests=>6;
 	like exception { $s eq "11" }, qr/\bARRRGH\b/, "eq fails";
 	like exception { $s == 11 }, qr/\bARRRGH\b/, "== fails";
 	like exception { 0+$s }, qr/\bARRRGH\b/, "add fails";
+};
+subtest DiesOnNumify => sub { plan tests=>6;
+	my $s = new_ok DiesOnNumify=>[1];
+	like exception { "$s" }, qr/\bBLAMMO\b/, "stringify fails";
+	ok !defined overload::Method($s,'""'), "no overloaded stringify";
+	like exception { $s eq "11" }, qr/\bBLAMMO\b/, "eq fails";
+	like exception { $s == 11 }, qr/\bBLAMMO\b/, "== fails";
+	like exception { 0+$s }, qr/\bBLAMMO\b/, "add fails";
 };
 
