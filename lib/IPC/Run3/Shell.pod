@@ -742,6 +742,8 @@ Larry Wall and others wrote the original L<Shell|Shell> in 1994,
 with various contributions throughout the years.
 L<Shell|Shell> is Copyright (c) 2005 by the Perl 5 Porters.
 
+L<System::Sub> and L<System::Sub::AutoLoad> - I didn't know it existed before creating IPC::Run3::Shell. Uses L<IPC::Run> under the hood. Used by L<Git::Sub>.
+
 L<IPC::Run3> - I chose this module from the plethora of similar modules
 for several reasons: it handles all three C<STDOUT>, C<STDERR> and C<STDIN>;
 it runs on Win32; it allows avoiding the shell;
