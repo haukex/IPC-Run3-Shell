@@ -739,7 +739,8 @@ you can do this (added in v0.56):
 
 =head1 Acknowledgements
 
-Thank you to LanX for suggesting C<:AUTOLOAD>.
+Thank you to LanX for suggesting C<:AUTOLOAD>
+and dolmen for a documentation suggestion.
 
 =head1 See Also
 
@@ -761,6 +762,7 @@ also includes easy access to this module!
 
 L<Capture::Tiny> - yet another capturing module.
 Its documentation includes a list of lots more such modules.
+There is also L<System::Sub>, which does something quite similar to this module.
 
 L<Env|Env> - tie environment variables to Perl variables, similar in spirit
 to this module
