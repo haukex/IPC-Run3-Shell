@@ -1,7 +1,7 @@
 Revision history for Perl extension IPC::Run3::Shell.
 
 0.56	not yet released
-	- Added :AUTOLOAD export tag
+	- Added :AUTOLOAD and :FATAL export tags
 	- ...
 
 0.54	Sat, May 23 2015	commit b1500e8041665e63c28032750ccb0dcda3bba978

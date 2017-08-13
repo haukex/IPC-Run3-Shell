@@ -98,6 +98,10 @@ sub import_into {
 				no strict 'refs';  ## no critic (ProhibitNoStrict)
 				*{"${callpack}::AUTOLOAD"} = \&{"${OBJECT_PACKAGE}::AUTOLOAD"};
 			}
+			elsif ($sym eq 'FATAL') {
+				debug "Enabling fatal warnings";
+				warnings->import(FATAL=>'IPC::Run3::Shell');
+			}
 			else {
 				croak "$class can't export \"$sym\"" unless $EXPORTABLE{$sym};
 				my $target = __PACKAGE__."::$sym";

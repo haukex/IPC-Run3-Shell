@@ -34,8 +34,8 @@ The above is adapted from Larry Wall's 1994 L<email about Shell|Shell/AUTHOR>.
 
  use strict;
  use warnings;             # any problems with system commands are warnings
- use IPC::Run3::Shell;                        # nothing exported by default
- use warnings FATAL=>"IPC::Run3::Shell";      # fatal warnings (optional)
+ use IPC::Run3::Shell                         # nothing exported by default
+                      qw/ :FATAL /;           # fatal warnings (optional)
  
  # ### Basic Usage (Functional Interface)
  use IPC::Run3::Shell qw/ echo cat /;    # these functions call system cmds
@@ -188,9 +188,12 @@ which enables all warnings:
  use strict;    # or "use v5.12;" or a newer version
 
 In addition, you can turn the warnings into fatal errors like this
-(see L<perllexwarn>):
+(added in v0.56):
 
- # use the module, then make the module's warnings fatal
+ use IPC::Run3::Shell ':FATAL';
+
+Which is shorthand for this (see L<perllexwarn>):
+
  use IPC::Run3::Shell;
  use warnings FATAL=>"IPC::Run3::Shell";
 

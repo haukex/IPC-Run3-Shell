@@ -18,12 +18,15 @@ use FindBin ();
 use lib $FindBin::Bin;
 use IPC_Run3_Shell_Testlib;
 
-use Test::More tests => 1;
+use Test::More tests => 2;
+use Test::Fatal 'exception';
 
-use IPC::Run3::Shell ':AUTOLOAD';
-use warnings FATAL=>'IPC::Run3::Shell';
+use IPC::Run3::Shell qw/ :AUTOLOAD :FATAL /;
 
 output_is { perl('-e','print "foo bar"'); 1 } 'foo bar', '', "autoloaded perl()";
+
+like exception { perl('-e','exit 1'); 1 },
+    qr/exit (status|value) 1\b/, "fail";
 
 done_testing;
 
