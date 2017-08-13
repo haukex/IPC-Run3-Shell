@@ -93,6 +93,11 @@ sub import_into {
 				no strict 'refs';  ## no critic (ProhibitNoStrict)
 				*{"${callpack}::$sym"} = make_cmd(\%opt);
 			}
+			elsif ($sym eq 'AUTOLOAD') {
+				debug "Exporting '${callpack}::$sym'" if $DEBUG;
+				no strict 'refs';  ## no critic (ProhibitNoStrict)
+				*{"${callpack}::AUTOLOAD"} = \&{"${OBJECT_PACKAGE}::AUTOLOAD"};
+			}
 			else {
 				croak "$class can't export \"$sym\"" unless $EXPORTABLE{$sym};
 				my $target = __PACKAGE__."::$sym";

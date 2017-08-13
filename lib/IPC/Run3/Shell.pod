@@ -110,7 +110,8 @@ but with several important differences and added features:
 =item *
 
 functions are only exported at the request of the user
-(no L<autoloading|perlsub/Autoloading> in the user's namespace)
+(no L<autoloading|perlsub/Autoloading> in the user's namespace -
+unless you explicitly L<ask|/Autoloading> for it)
 
 =item *
 
@@ -726,15 +727,16 @@ If you really, really wanted to have L<Shell|Shell>'s
 L<autoloading|perlsub/Autoloading> behavior back,
 with all the possible safety implications
 (such as any typos leading to the execution of system commands!),
-you could do this:
+you can do this:
 
- BEGIN {
-     require IPC::Run3::Shell;
-     *AUTOLOAD = \&IPC::Run3::Shell::Autoload::AUTOLOAD;
- }
+ use IPC::Run3::Shell ':AUTOLOAD';
  echo("foo","bar");   # calls "echo foo bar" via autoloaded "echo"
 
 =for test cut
+
+=head1 Acknowledgements
+
+Thank you to LanX for suggesting C<:AUTOLOAD>.
 
 =head1 See Also
 
