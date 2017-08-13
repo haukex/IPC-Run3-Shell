@@ -727,7 +727,7 @@ If you really, really wanted to have L<Shell|Shell>'s
 L<autoloading|perlsub/Autoloading> behavior back,
 with all the possible safety implications
 (such as any typos leading to the execution of system commands!),
-you can do this:
+you can do this (added in v0.56):
 
  use IPC::Run3::Shell ':AUTOLOAD';
  echo("foo","bar");   # calls "echo foo bar" via autoloaded "echo"
