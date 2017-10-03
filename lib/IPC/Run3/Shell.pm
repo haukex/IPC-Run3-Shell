@@ -158,7 +158,7 @@ sub make_cmd {  ## no critic (ProhibitExcessComplexity)
 				# We throw our own custom warning instead of Perl's regular warning because Perl's warning
 				# would be reported in this module instead of the calling code.
 				warnings::warnif('numeric','Argument "'.(defined($_)?$_:"(undef)").'" isn\'t numeric in allow_exit')
-					unless looks_like_number($_);
+					unless defined && looks_like_number($_);
 				no warnings 'numeric', 'uninitialized';  ## no critic (ProhibitNoWarnings)
 				$_ = 0+$_; # so later usage as a number isn't a warning
 			}
