@@ -18,7 +18,7 @@ use FindBin ();
 use lib $FindBin::Bin;
 use IPC_Run3_Shell_Testlib;
 
-use Test::More tests=>14;
+use Test::More tests=>14; # remember to keep in sync with done_testing
 use Test::Fatal 'exception';
 
 BEGIN {
@@ -65,4 +65,8 @@ my @sout = $s->perl('-e','warn "warn0\n";print <STDIN>."beep".<STDIN>; print STD
 is $?, 0, 'simple test $?';
 is_deeply \@sout, ["foo","beepbar"], 'simple test stdout';
 is $serr, "warn0\nerr", 'simple test stderr';
+
+if (my $cnt = grep {!$_} Test::More->builder->summary)
+	{ BAIL_OUT("$cnt smoke tests failed") }
+done_testing(14);
 
