@@ -40,7 +40,7 @@ use warnings FATAL=>'IPC::Run3::Shell';
 # Testers has shown this works just about everywhere.
 
 # check warns() and output_is() from our test lib
-is_deeply [ warns { warn "I am a warning\n"; } ], ["I am a warning\n"], 'test warns()';
+is grep({/\bI am a warning\b/} warns { warn "I am a warning\n"; }), 1, 'test warns()';
 output_is { warn "I am warn\n"; print "I am output" } "I am output", "I am warn\n", 'test output_is()';
 
 if ($AUTHOR_TESTS)
