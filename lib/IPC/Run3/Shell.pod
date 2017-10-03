@@ -137,7 +137,8 @@ B<Read on for more information and examples!>
 
 =head2 Version
 
-This document describes version 0.56 of IPC::Run3::Shell.
+This document describes version 0.57 of IPC::Run3::Shell.
+B<This is a development version.>
 
 =head1 Security
 
