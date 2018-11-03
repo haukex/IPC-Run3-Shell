@@ -1,7 +1,8 @@
 IPC::Run3::Shell
 ================
 
-This is the distribution of the Perl module `IPC::Run3::Shell`.
+This is the distribution of the Perl module
+[`IPC::Run3::Shell`](https://metacpan.org/pod/IPC::Run3::Shell).
 
 It is a Perl extension that allows calling system commands
 as if they were Perl functions.
