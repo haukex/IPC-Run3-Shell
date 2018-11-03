@@ -10,6 +10,9 @@ Please see the module's documentation (POD) for details
 (try the command `perldoc lib/IPC/Run3/Shell.pod`)
 and the file `Changes` for version information.
 
+[![Travis CI Build Status](https://travis-ci.org/haukex/IPC-Run3-Shell.svg)](https://travis-ci.org/haukex/IPC-Run3-Shell.svg)
+[![CPAN Testers](https://badges.zero-g.net/cpantesters/IPC-Run3-Shell.svg)](http://matrix.cpantesters.org/?dist=IPC-Run3-Shell)
+
 Installation
 ------------
 
