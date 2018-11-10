@@ -47,6 +47,7 @@ use IPC::Run3::Shell;
 output_is {
 	IPC::Run3::Shell::debug("testing 123");
 	IPC::Run3::Shell->import(':run',':make_cmd','perl');
+	{ package FooBar; IPC::Run3::Shell->import(':AUTOLOAD'); }
 	is perl('-e','print "foo"'), "foo", "dummy test";
 	my $s = IPC::Run3::Shell->new();
 	is $s->perl('-e','print "foo"'), "foo", "dummy test";
