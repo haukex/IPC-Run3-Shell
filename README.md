@@ -13,7 +13,7 @@ and the file `Changes` for version information.
 
 [![Travis CI Build Status](https://travis-ci.org/haukex/IPC-Run3-Shell.svg)](https://travis-ci.org/haukex/IPC-Run3-Shell.svg)
 [![Coverage Status](https://coveralls.io/repos/github/haukex/IPC-Run3-Shell/badge.svg)](https://coveralls.io/github/haukex/IPC-Run3-Shell)
-[![Kwalitee Score](https://badges.zero-g.net/kwalitee/IPC-Run3-Shell.svg)](https://cpants.cpanauthors.org/dist/IPC-Run3-Shell)
+[![Kwalitee Score](https://cpants.cpanauthors.org/dist/IPC-Run3-Shell.svg)](https://cpants.cpanauthors.org/dist/IPC-Run3-Shell)
 [![CPAN Testers](https://badges.zero-g.net/cpantesters/IPC-Run3-Shell.svg)](http://matrix.cpantesters.org/?dist=IPC-Run3-Shell)
 
 Installation
