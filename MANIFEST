@@ -1,6 +1,7 @@
 Changes
 lib/IPC/Run3/Shell.pm
 lib/IPC/Run3/Shell.pod
+lib/IPC/Run3/Shell/CLIWrapper.pm
 Makefile.PL
 MANIFEST
 README.md
@@ -25,6 +26,7 @@ t/31_autoload_fatal.t
 t/40_os_nix.t
 t/41_os_darwin.t
 t/42_os_win32.t
+t/50_cliwrapper.t
 t/90_author_critic.t
 t/91_author_pod.t
 t/92_author_cover.t

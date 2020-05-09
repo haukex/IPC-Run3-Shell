@@ -776,6 +776,9 @@ and dolmen for a documentation suggestion.
 
 =head1 See Also
 
+L<IPC::Run3::Shell::CLIWrapper> - makes it easier to build wrappers
+for command-line interfaces.
+
 Larry Wall and others wrote the original L<Shell|Shell> in 1994,
 with various contributions throughout the years.
 L<Shell|Shell> is Copyright (c) 2005 by the Perl 5 Porters.
@@ -801,7 +804,7 @@ to this module
 
 =head1 Author, Copyright, and License
 
-Copyright (c) 2014 Hauke Daempfling (haukex@zero-g.net).
+Copyright (c) 2014-2020 Hauke Daempfling (haukex@zero-g.net).
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl 5 itself.
