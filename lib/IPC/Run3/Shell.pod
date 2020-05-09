@@ -58,6 +58,8 @@ The above is adapted from Larry Wall's 1994 L<email about Shell|Shell/AUTHOR>.
  my ($out,$err,$exitcode) = echo "Foo", {both=>1}; # return both STDOUT/ERR
  my $out_and_err = echo "FooBar", {both=>1};       # STDOUT+STDERR merged
  echo "Foo", "Bar", {fail_on_stderr=>1};           # fail on any STDERR
+ my $outfilt = echo "Hello", { stdout_filter => sub { s/[eo]/X/g } };
+   # provide a callback that modifies $_ to filter stdout return value
  my $bla = echo {show_cmd=>1}, "blah", "blah";     # show cmd (debugging)
    # IPC::Run3 options binmode_* and append_* are also supported
  
@@ -90,6 +92,7 @@ The above is adapted from Larry Wall's 1994 L<email about Shell|Shell/AUTHOR>.
  is $err, "";
  is $exitcode, 0;
  is $out_and_err, "FooBar\n";
+ is $outfilt, "HXllX\n";
  is $bla, "blah blah\n";
  is $o, "Hello,"; is $e, "World!\n";
  is "$o $e", "Hello, World!\n";
@@ -402,6 +405,35 @@ presence of this option in the options hash means the option is set.
 Setting this boolean option causes the return value(s) of the function to be
 L<chomped|perlfunc/chomp>.
 This option has no effect if you're using the option L</stdout>.
+
+=head2 C<stdout_filter>
+
+Setting this option to a coderef causes this coderef to be called to
+filter the command's C<STDOUT>. In list context, the filter is
+applied I<per line>, while in scalar context, the filter is applied
+over the entire output. The coderef should modify C<$_> to modify the
+output string(s); its return value is ignored.
+
+For example, say you've got a command that outputs JSON, you can turn
+the output from that command into a Perl data structure like this
+(this is just a demonstration using C<echo> that passes its input
+through):
+
+ use JSON::PP qw/encode_json decode_json/;
+ use IPC::Run3::Shell [ foo => { fail_on_stderr => 1,
+     stdout_filter => sub { $_=decode_json($_) } }, qw/ echo / ];
+ 
+ my $foo = foo( encode_json( { test=>'123' } ) );
+ print $foo->{test}, "\n"; # prints "123"
+
+=for test
+ is $foo->{test}, '123';
+ is_deeply $foo, { test=>'123' };
+
+=for test cut
+
+This option has no effect if you're using the option L</stdout>.
+It is applied I<after> the C<chomp> operation, if that option is set.
 
 =head2 C<both>
 
