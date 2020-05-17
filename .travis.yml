@@ -17,6 +17,10 @@ perl:
 
 # coveralls.io support:
 before_install:
+    # versions >1.33 fail on Perl <5.10
+    - cpanm --notest Devel::Cover@1.33
     - cpanm --notest Devel::Cover::Report::Coveralls
 after_success:
+    # this will fail on Perl <5.10, but Travis doesn't report it as a failure
+    # # (it's ok if it fails, we don't need coverage reports from every single version)
     - IPC_RUN3_SHELL_AUTHOR_TESTS=1 cover -test -coverage default,-pod -report coveralls
