@@ -3,7 +3,7 @@ package IPC::Run3::Shell::CLIWrapper;
 use warnings;
 use strict;
 
-our $VERSION = '0.58';
+our $VERSION = '0.59';
 # For AUTHOR, COPYRIGHT, AND LICENSE see the bottom of this file
 
 BEGIN {
@@ -194,6 +194,11 @@ This means that hash references can be passed as the last item(s) in
 the list to set options.
 
 =back
+
+=head2 Version
+
+This document describes version 0.59 of IPC::Run3::Shell::CLIWrapper.
+B<This is a development version.>
 
 =head1 Author, Copyright, and License
 

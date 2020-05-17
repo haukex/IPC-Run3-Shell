@@ -1,6 +1,6 @@
 Revision history for Perl extension IPC::Run3::Shell.
 
-0.58	Sun, May 17 2020
+0.58	Sun, May 17 2020	commit 5bf276f36901bfe5fff853aecf7c969a94b05b7f
 	- Added IPC::Run3::Shell::CLIWrapper
 	- Added option stdout_filter to IPC::Run3::Shell
 	- Minor fixups
