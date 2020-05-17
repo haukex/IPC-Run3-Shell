@@ -481,6 +481,7 @@ The C<both> option was added in v0.52.
  my $rv = find { allow_exit=>[0,1] }, '/etc', '-name', 'passwd',
      '-print0', { stdout=>\my @files, stderr=>\my $err, irs=>"\0" };
  print "find exited with $rv\n";
+ s/\0\z// for @files;  # the "chomp" option doesn't work with "stdout"
  print "Found files: ".join(', ',@files)."\n";
  print "## Warnings ##\n$err##\n" if $err=~/\S/;
 

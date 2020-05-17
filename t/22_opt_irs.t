@@ -40,5 +40,3 @@ is_deeply \@e1, ["barB","quzB","baz\n"], 'irs 6';
 
 # irs + chomp
 is_deeply [$s->perl({irs=>'C',chomp=>1},'-e','print "fooCbarCquz\n"')], ["foo","bar","quz\n"], 'irs 7';
-
-#TODO: The example in Shell.pod for stderr (find /etc) with chomp and irs seems to not be working correctly?
