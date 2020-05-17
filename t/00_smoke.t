@@ -26,8 +26,8 @@ BEGIN {
 	use_ok 'IPC::Run3::Shell';
 	use_ok 'IPC::Run3::Shell::CLIWrapper';
 }
-is $IPC::Run3::Shell::VERSION, '0.57', 'version matches tests';
-is $IPC::Run3::Shell::CLIWrapper::VERSION, '0.57', 'version matches tests';
+is $IPC::Run3::Shell::VERSION, '0.58', 'version matches tests';
+is $IPC::Run3::Shell::CLIWrapper::VERSION, '0.58', 'version matches tests';
 use warnings FATAL=>'IPC::Run3::Shell';
 
 # Note that for testing, we're basically only calling an external perl process.

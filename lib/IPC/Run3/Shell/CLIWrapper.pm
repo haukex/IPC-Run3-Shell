@@ -3,7 +3,7 @@ package IPC::Run3::Shell::CLIWrapper;
 use warnings;
 use strict;
 
-our $VERSION = '0.57';
+our $VERSION = '0.58';
 # For AUTHOR, COPYRIGHT, AND LICENSE see the bottom of this file
 
 BEGIN {

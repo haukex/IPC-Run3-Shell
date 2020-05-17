@@ -140,8 +140,7 @@ B<Read on for more information and examples!>
 
 =head2 Version
 
-This document describes version 0.57 of IPC::Run3::Shell.
-B<This is a development version.>
+This document describes version 0.58 of IPC::Run3::Shell.
 
 =head1 Security
 
@@ -434,6 +433,8 @@ through):
 
 This option has no effect if you're using the option L</stdout>.
 It is applied I<after> the C<chomp> operation, if that option is set.
+
+The C<stdout_filter> option was added in v0.58.
 
 =head2 C<both>
 
@@ -778,7 +779,7 @@ and dolmen for a documentation suggestion.
 =head1 See Also
 
 L<IPC::Run3::Shell::CLIWrapper> - makes it easier to build wrappers
-for command-line interfaces.
+for command-line interfaces. This module was added in v0.58.
 
 Larry Wall and others wrote the original L<Shell|Shell> in 1994,
 with various contributions throughout the years.

@@ -17,7 +17,7 @@ use strict;
 # Try the command "perldoc perlartistic" or see
 # http://perldoc.perl.org/perlartistic.html .
 
-our $VERSION = '0.57';
+our $VERSION = '0.58';
 
 use Carp;
 use warnings::register;
