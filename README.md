@@ -15,7 +15,7 @@ and the file `Changes` for version information.
 [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/haukex/IPC-Run3-Shell?svg=true)](https://ci.appveyor.com/project/haukex/ipc-run3-shell)
 [![Coverage Status](https://coveralls.io/repos/github/haukex/IPC-Run3-Shell/badge.svg)](https://coveralls.io/github/haukex/IPC-Run3-Shell)
 [![Kwalitee Score](https://cpants.cpanauthors.org/dist/IPC-Run3-Shell.svg)](https://cpants.cpanauthors.org/dist/IPC-Run3-Shell)
-[![CPAN Testers](https://badges.zero-g.net/cpantesters/IPC-Run3-Shell.svg)](http://matrix.cpantesters.org/?dist=IPC-Run3-Shell)
+[![CPAN Testers](https://haukex.github.io/my-badges/IPC-Run3-Shell.svg)](http://matrix.cpantesters.org/?dist=IPC-Run3-Shell)
 
 Installation
 ------------
